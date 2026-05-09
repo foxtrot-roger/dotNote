@@ -992,8 +992,8 @@
             });
 
             // Year shifts
-            result.push({ keyword: "..ly", keyword: formatYMD(new Date(now.getFullYear() - 1, now.getMonth(), now.getDate())) });
-            result.push({ keyword: "..ny", keyword: formatYMD(new Date(now.getFullYear() + 1, now.getMonth(), now.getDate())) });
+            result.push({ keyword: "..ly", replacement: formatYMD(new Date(now.getFullYear() - 1, now.getMonth(), now.getDate())) });
+            result.push({ keyword: "..ny", replacement: formatYMD(new Date(now.getFullYear() + 1, now.getMonth(), now.getDate())) });
 
             Array.from({ length: 31 }, (_, i) => i + 1).forEach((num, i) => {
                 result.push({ keyword: `d-${num}`, replacement: addDays(-num) });
