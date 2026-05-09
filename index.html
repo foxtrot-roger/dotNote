@@ -1,0 +1,1171 @@
+<!DOCTYPE html>
+<html lang="en"><head>
+<meta http-equiv="content-type" content="text/html; charset=UTF-8">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Quick Notes - Full Width Chat</title>
+    <style>
+        :root {
+            --bg: #f8fafc;
+            --text: #1a202c;
+            --accent: #3182ce;
+            --border: #e2e8f0;
+            --hover: #f7fafc;
+            --secondary-text: #718096;
+            --danger: #e53e3e;
+        }
+
+        body {
+            font-family: 'Segoe UI', system-ui, sans-serif;
+            background: var(--bg);
+            color: var(--text);
+            margin: 0;
+            display: flex;
+            flex-direction: column;
+            height: 100dvh;
+        }
+
+        .container {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            width: 100%;
+            position: relative;
+            height: 100%;
+        }
+
+        .toolbar {
+            display: flex;
+            justify-content: flex-end;
+            gap: 10px;
+            padding: 10px 20px;
+            align-items: center;
+            background: var(--bg);
+            border-bottom: 1px solid var(--border);
+            z-index: 101;
+        }
+
+        .btn-util {
+            background: transparent;
+            color: var(--secondary-text);
+            border: 1px solid var(--border);
+            padding: 4px 10px;
+            border-radius: 4px;
+            font-size: 0.7rem;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .btn-util:hover {
+            background: #fff;
+            color: var(--accent);
+            border-color: var(--accent);
+        }
+
+        #shortcutModal {
+            display: none;
+            position: fixed;
+            top: 50px;
+            right: 20px;
+            background: white;
+            border: 1px solid var(--border);
+            box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1);
+            border-radius: 8px;
+            padding: 15px;
+            z-index: 1000;
+            width: 300px;
+        }
+
+        /* --- Full Width & Minimal Spacing --- */
+
+        .notes-list {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            padding: 15px 20px;
+            overflow-y: auto;
+            width: 100%;
+            box-sizing: border-box;
+        }
+
+        .input-wrapper {
+            padding: 10px 20px;
+            background: white;
+            border-top: 1px solid var(--border);
+            box-sizing: border-box;
+            flex-shrink: 0;
+        }
+
+        #masterInput {
+            width: 100%;
+            padding: 12px 16px;
+            font-family: 'Consolas', 'Monaco', monospace;
+            font-size: 1rem;
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            outline: none;
+            transition: border-color 0.2s;
+            box-sizing: border-box;
+            background: white;
+        }
+
+        #masterInput:focus {
+            border-color: var(--accent);
+        }
+
+        .note-item {
+            background: white;
+            border: 1px solid var(--border);
+            border-radius: 6px;
+            display: flex;
+            font-family: 'Consolas', 'Monaco', monospace;
+            align-items: flex-start;
+            width: 100%;
+            /* Full width */
+            box-sizing: border-box;
+        }
+
+        .note-item:focus-within {
+            background: white;
+            border-color: var(--accent);
+            box-shadow: 0 4px 12px rgba(49, 130, 206, 0.15);
+            transform: translateY(-1px);
+            transition: all 0.2s ease;
+        }
+
+
+        .note-content {
+            flex-grow: 1;
+            padding: 10px 14px;
+            font-size: 0.95rem;
+            outline: none;
+            white-space: pre-wrap;
+            line-height: 1.5;
+        }
+
+        .actions {
+            display: flex;
+            padding: 6px;
+            opacity: 0;
+            gap: 2px;
+        }
+
+        .note-item:hover .actions,
+        .note-item:focus-within .actions {
+            opacity: 1;
+        }
+
+        .btn-action {
+            background: none;
+            border: none;
+            padding: 4px;
+            cursor: pointer;
+            color: #cbd5e0;
+            font-size: 0.85rem;
+        }
+
+        .btn-action:hover {
+            color: var(--text);
+        }
+
+        .shortcut-row {
+            display: flex;
+            justify-content: space-between;
+            font-size: 0.8rem;
+            margin-bottom: 4px;
+            border-bottom: 1px solid #f1f5f9;
+        }
+
+        .kbd {
+            background: #f1f5f9;
+            padding: 1px 4px;
+            border-radius: 3px;
+            font-family: monospace;
+        }
+
+        /* dropup button */
+        /* Container for button and input */
+        .input-group {
+            display: flex;
+            gap: 8px;
+            align-items: center;
+        }
+
+        /* Dropup Container */
+        .dropup {
+            position: relative;
+            display: inline-block;
+        }
+
+        /* Dropup Menu Styling */
+        .dropup-content {
+            display: none;
+            position: absolute;
+            bottom: 100%;
+            /* Positions it above the button */
+            left: 0;
+            background-color: white;
+            min-width: 120px;
+            box-shadow: 0px 8px 16px rgba(0, 0, 0, 0.1);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            z-index: 1001;
+            margin-bottom: 10px;
+            overflow: hidden;
+        }
+
+        /* Dropup Items */
+        .dropup-content div {
+            color: var(--text);
+            padding: 10px 14px;
+            font-size: 0.85rem;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+
+        .dropup-content div:hover {
+            background-color: var(--hover);
+            color: var(--accent);
+        }
+
+        /* Show the menu */
+        .show-dropup {
+            display: block;
+        }
+
+        /* Adjust button size to match input height better */
+        #dropupBtn {
+            height: 42px;
+            width: 42px;
+            font-size: 1.2rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 8px;
+        }
+
+        /* Ensure the menu stays within the note's action area */
+        .note-menu {
+            right: 0;
+            left: auto;
+            /* Align to the right since actions are on the right */
+            top: 30px;
+            bottom: auto;
+        }
+
+        /* Ensure the note item can contain the relative menu */
+        .actions {
+            position: relative;
+            opacity: 0;
+        }
+
+        .intellisense-popup {
+            display: none;
+            position: absolute;
+            background: white;
+            border: 1px solid var(--accent);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+            border-radius: 6px;
+            z-index: 2000;
+            min-width: 150px;
+            overflow: hidden;
+        }
+
+        .suggestion-item {
+            padding: 8px 12px;
+            cursor: pointer;
+            font-size: 0.85rem;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .suggestion-item.active {
+            background: var(--accent);
+            color: white;
+        }
+
+        .suggestion-item:last-child {
+            border-bottom: none;
+        }
+
+/* Side Menu Drawer */
+.side-menu {
+    position: fixed;
+    top: 0;
+    left: -280px; /* Hidden by default */
+    width: 280px;
+    height: 100%;
+    background: white;
+    box-shadow: 2px 0 10px rgba(0,0,0,0.1);
+    z-index: 1000;
+    transition: left 0.3s ease;
+    display: flex;
+    flex-direction: column;
+    padding: 20px;
+    box-sizing: border-box;
+    border-top-right-radius: 12px;
+    border-bottom-right-radius: 12px;
+}
+
+.side-menu.open {
+    left: 0;
+}
+
+.menu-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-bottom: 1px solid var(--border);
+    margin-bottom: 20px;
+    padding-bottom: 10px;
+}
+
+.menu-section {
+    margin-bottom: 25px;
+}
+
+.menu-section h4 {
+    color: var(--secondary-text);
+    font-size: 0.75rem;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    margin-bottom: 10px;
+}
+
+.menu-btn {
+    display: block;
+    width: 100%;
+    text-align: left;
+    padding: 10px;
+    background: none;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 0.9rem;
+    color: var(--text);
+    transition: background 0.2s;
+}
+
+.menu-btn:hover {
+    background: var(--hover);
+    color: var(--accent);
+}
+
+/* Optional Backdrop when menu is open */
+.menu-overlay {
+    display: none;
+    position: fixed;
+    top: 0; left: 0; right: 0; bottom: 0;
+    background: rgba(0,0,0,0.2);
+    z-index: 999;
+}
+.menu-overlay.show { display: block; }
+    </style>
+<meta id="ConnectiveDocSignExtentionInstalled" name="ConnectiveDocSignExtentionInstalled" data-extension-version="1.0.5"><style>:is([id*='google_ads_iframe'],[id*='taboola-'],.taboolaHeight,.taboola-placeholder,#top-ad,#credential_picker_container,#credentials-picker-container,#credential_picker_iframe,[id*='google-one-tap-iframe'],#google-one-tap-popup-container,.google-one-tap__module,.google-one-tap-modal-div,#amp_floatingAdDiv,#ez-content-blocker-container) {display:none!important;min-height:0!important;height:0!important;}</style></head>
+
+<body style="height: 870px;">
+
+    <div id="shortcutModal">
+        <h4 style="margin: 0 0 10px 0; color:var(--accent)">Navigation &amp; Actions</h4>
+        <div class="shortcut-row"><span>Focus/Clear Search</span> <span class="kbd">Esc</span></div>
+        <div class="shortcut-row"><span>Copy full note</span> <span class="kbd">Ctrl+C</span></div>
+        <div class="shortcut-row"><span>Navigate Notes</span> <span class="kbd">Ctrl+↑/↓</span></div>
+
+        <h4 style="margin: 15px 0 10px 0; color:var(--accent)">Date and Time</h4>
+        <div class="shortcut-row"><span>Current Date/Time</span> <span class="kbd">..now</span></div>
+        <div class="shortcut-row"><span>Current Time</span> <span class="kbd">..time</span></div>
+        <div class="shortcut-row"><span>Current Date</span> <span class="kbd">..date</span></div>
+        <div class="shortcut-row"><span>Today (Date)</span> <span class="kbd">..today</span></div>
+        <div class="shortcut-row"><span>Yesterday (Date)</span> <span class="kbd">..yesterday</span></div>
+        <div class="shortcut-row"><span>Tomorrow (Date)</span> <span class="kbd">..tomorrow</span></div>
+        <div class="shortcut-row"><span>Current Weekday</span> <span class="kbd">..wd</span></div>
+        <div class="shortcut-row"><span>Current Day</span> <span class="kbd">..dd</span></div>
+        <div class="shortcut-row"><span>Current Month</span> <span class="kbd">..mm</span></div>
+        <div class="shortcut-row"><span>Current year</span> <span class="kbd">..yyyy</span></div>
+
+        <h4 style="margin: 15px 0 10px 0; color:var(--accent)">Relative Date &amp; Time</h4>
+        <div class="shortcut-row">
+            <span>Relative Days</span>
+            <span><span class="kbd">d-31</span> → <span class="kbd">d+31</span></span>
+        </div>
+        <div class="shortcut-row">
+            <span>Relative Hours</span>
+            <span><span class="kbd">h-72</span> → <span class="kbd">h+72</span></span>
+        </div>
+
+        <div class="shortcut-row">
+            <span>Last Week Days</span>
+            <span><span class="kbd">..lMon</span> → <span class="kbd">..lSun</span></span>
+        </div>
+        <div class="shortcut-row">
+            <span>Next Week Days</span>
+            <span><span class="kbd">..nMon</span> → <span class="kbd">..nSun</span></span>
+        </div>
+
+        <div class="shortcut-row">
+            <span>Last Months</span>
+            <span><span class="kbd">..lJan</span> → <span class="kbd">..lDec</span></span>
+        </div>
+        <div class="shortcut-row">
+            <span>Next Months</span>
+            <span><span class="kbd">..nJan</span> → <span class="kbd">..nDec</span></span>
+        </div>
+
+        <div class="shortcut-row">
+            <span>Last/Next Year</span>
+            <span><span class="kbd">..ly</span> / <span class="kbd">..ny</span></span>
+        </div>
+
+        <div class="shortcut-row">
+            <span>Last Year Months</span>
+            <span><span class="kbd">..lyJan</span> → <span class="kbd">..lyDec</span></span>
+        </div>
+        <div class="shortcut-row">
+            <span>Next Year Months</span>
+            <span><span class="kbd">..nyJan</span> → <span class="kbd">..nyDec</span></span>
+        </div>
+
+        <div class="shortcut-row"><span>Custom Snippets</span> <span class="kbd">..name</span></div>
+
+        <p style="font-size: 0.7rem; color: var(--secondary-text); margin-top: 10px;">
+            Define snippets by starting a note with <b>..name [content]</b>
+        </p>
+
+        <button class="btn-util" style="width:100%; margin-top:10px" onclick="toggleShortcuts()">Close</button>
+    </div>
+
+<div class="container">
+    <div id="sideMenu" class="side-menu">
+        <div class="menu-header">
+            <h3>Menu</h3>
+            <button class="btn-action" onclick="toggleMenu()">✕</button>
+        </div>
+        <div class="menu-section">
+            <h4>Export</h4>
+            <button class="menu-btn" onclick="exportJSON()">Everything</button>
+            <button class="menu-btn" onclick="exportNotesJSON()">Notes Only</button>
+            <button class="menu-btn" onclick="exportVocabularyJSON()">Vocabulary Only</button>
+        </div>
+        <div class="menu-section">
+            <h4>Import</h4>
+            <button class="menu-btn" onclick="document.getElementById('loadFile').click()">Load (Replace)</button>
+            <button class="menu-btn" onclick="document.getElementById('importFile').click()">Import (Merge)</button>
+        </div>
+        <input type="file" id="loadFile" style="display:none" accept=".json" onchange="loadJSON(event)">
+        <input type="file" id="importFile" style="display:none" accept=".json" onchange="importJSON(event)">
+    </div>
+
+    <div class="toolbar">
+        <button class="btn-util" onclick="toggleMenu()">☰ Menu</button>
+        <div style="flex-grow: 1;"></div>
+        <button class="btn-util" style="width:24px; height:24px; padding:0; border-radius:50%" onclick="toggleShortcuts()">?</button>
+    </div>
+
+    <div id="notesList" class="notes-list"></div>
+
+    <div class="input-wrapper">
+        <div class="input-group">
+            <button class="btn-util" style="height: 42px; width: 42px;" onclick="triggerCommand()">..</button>
+            <input type="text" id="masterInput" placeholder="Find or create note..." autofocus="" autocomplete="off">
+            <button class="btn-util" style="height: 42px; width: 42px;" onclick="addNote(masterInput.value)">+</button>
+        </div>
+    </div>
+</div>
+
+    <div id="intellisense" class="intellisense-popup" style="display: none; top: auto; bottom: 60px; left: 20px;"><div class="suggestion-item " onclick="applySuggestion('..today', '2026-05-09')">
+                <strong>..today</strong><br><small>2026-05-09</small>
+            </div><div class="suggestion-item " onclick="applySuggestion('..tomorrow', '2026-05-10')">
+                <strong>..tomorrow</strong><br><small>2026-05-10</small>
+            </div><div class="suggestion-item active" onclick="applySuggestion('..todo', '2026-05-09 [TODO] :')">
+                <strong>..todo</strong><br><small>2026-05-09 [TODO] :</small>
+            </div></div>
+
+    <script>
+        const DB_NAME = 'QuickNotesDB';
+        const STORE_NAME = 'notes';
+        const masterInput = document.getElementById('masterInput');
+        const notesList = document.getElementById('notesList');
+        let db;
+
+        function initDB() {
+            return new Promise((resolve, reject) => {
+                const request = indexedDB.open(DB_NAME, 1);
+                request.onupgradeneeded = (e) => {
+                    const db = e.target.result;
+                    if (!db.objectStoreNames.contains(STORE_NAME)) {
+                        db.createObjectStore(STORE_NAME, { keyPath: 'id' });
+                    }
+                };
+                request.onsuccess = (e) => {
+                    db = e.target.result;
+                    resolve(db);
+                };
+                request.onerror = (e) => reject("DB Error: " + e.target.errorCode);
+            });
+        }
+
+        function getAllNotes() {
+            return new Promise((resolve) => {
+                const transaction = db.transaction([STORE_NAME], 'readonly');
+                const store = transaction.objectStore(STORE_NAME);
+                const request = store.getAll();
+                request.onsuccess = () => {
+                    resolve(request.result.sort((a, b) => a.id - b.id));
+                };
+            });
+        }
+
+        function dbAddNote(note) {
+            return new Promise((resolve) => {
+                const transaction = db.transaction([STORE_NAME], 'readwrite');
+                const store = transaction.objectStore(STORE_NAME);
+                store.add(note);
+                transaction.oncomplete = () => resolve();
+            });
+        }
+
+        function dbUpdateNote(note) {
+            return new Promise((resolve) => {
+                const transaction = db.transaction([STORE_NAME], 'readwrite');
+                const store = transaction.objectStore(STORE_NAME);
+                store.put(note);
+                transaction.oncomplete = () => resolve();
+            });
+        }
+
+        function dbDeleteNote(id) {
+            return new Promise((resolve) => {
+                const transaction = db.transaction([STORE_NAME], 'readwrite');
+                const store = transaction.objectStore(STORE_NAME);
+                store.delete(id);
+                transaction.oncomplete = () => resolve();
+            });
+        }
+
+        function dbClearAll() {
+            return new Promise((resolve) => {
+                const transaction = db.transaction([STORE_NAME], 'readwrite');
+                const store = transaction.objectStore(STORE_NAME);
+                store.clear();
+                transaction.oncomplete = () => resolve();
+            });
+        }
+
+        async function render(shouldScroll = false) {
+            const notes = await getAllNotes();
+            const query = masterInput.value.toLowerCase();
+
+            const queryPrefix = query !== "" && query.length > 1 && supportedPrefixes.find(p => query.toLowerCase().startsWith(p)) !== undefined;
+            notesList.innerHTML = notes
+                .filter(note => {
+                    var isMatch = note.text.toLowerCase().includes(query);
+                    if (!isMatch)
+                        return false;
+
+                    const activePrefix = supportedPrefixes.find(p => note.text.toLowerCase().startsWith(p)) !== undefined;
+                    if (activePrefix && !queryPrefix)
+                        return false;
+
+                    return true;
+                })
+                .map(note => `
+            <div class="note-item" data-id="${note.id}">
+                <div class="note-content" 
+                     contenteditable="true" 
+                     spellcheck="false"
+                     oninput="handleNoteInput(event)"
+                     onkeydown="handleNoteKeydown(event)"
+                     oncopy="handleSmartCopy(event)"
+                     onfocus="handleNoteFocus(event)"
+                     onblur="handleUpdate(${note.id}, this.innerText)">${note.text}</div>
+                <div class="actions">
+                    <button class="btn-action" title="Copy" onclick="copyToClipboard(this.parentElement.previousElementSibling.innerText)">📋</button>
+                    <button class="btn-action" title="Delete" style="color:var(--danger)" onclick="deleteNote(${note.id})">✕</button>
+                </div>
+            </div>
+        `).join('');
+
+            if (shouldScroll || query === "") {
+                notesList.scrollTop = notesList.scrollHeight;
+            }
+        }
+
+        async function addNote(text) {
+            if (!text.trim()) return;
+            await dbAddNote({ id: Date.now(), text: text });
+            masterInput.value = '';
+            render(true);
+        }
+
+        async function handleUpdate(id, newText) {
+            const notes = await getAllNotes();
+            const note = notes.find(n => n.id === id);
+            if (note && note.text !== newText) {
+                await dbUpdateNote({ id, text: newText });
+            }
+        }
+
+        async function deleteNote(id) {
+            if (confirm("Delete note?")) {
+                await dbDeleteNote(id);
+                render();
+            }
+        }
+
+        function toggleMenu() {
+            const menu = document.getElementById('sideMenu');
+            menu.classList.toggle('open');
+            
+            // Optional: Close menu if user clicks outside
+            if (menu.classList.contains('open')) {
+                const overlay = document.createElement('div');
+                overlay.id = 'menuOverlay';
+                overlay.className = 'menu-overlay show';
+                overlay.onclick = toggleMenu;
+                document.body.appendChild(overlay);
+            } else {
+                const overlay = document.getElementById('menuOverlay');
+                if (overlay) overlay.remove();
+            }
+        }
+        function toggleShortcuts() {
+            const modal = document.getElementById('shortcutModal');
+            modal.style.display = modal.style.display === 'block' ? 'none' : 'block';
+        }
+
+        function copyToClipboard(text) {
+            navigator.clipboard.writeText(text);
+        }
+
+        async function exportJSON() {
+            const notes = await getAllNotes();
+            const dataStr = JSON.stringify(notes, null, 2);
+            const dataUri = 'data:application/json;charset=utf-8,' + encodeURIComponent(dataStr);
+            const linkElement = document.createElement('a');
+            linkElement.setAttribute('href', dataUri);
+            linkElement.setAttribute('download', `dotdot_all_${new Date().toISOString().slice(0, 10)}.json`);
+            linkElement.click();
+        }
+        async function exportNotesJSON() {
+            const notes = await getAllNotes();
+            const vocabulary = notes.filter(note => !note.text.startsWith(".."));
+            const dataStr = JSON.stringify(vocabulary, null, 2);
+            const dataUri = 'data:application/json;charset=utf-8,' + encodeURIComponent(dataStr);
+            const linkElement = document.createElement('a');
+            linkElement.setAttribute('href', dataUri);
+            linkElement.setAttribute('download', `dotdot_notes_${new Date().toISOString().slice(0, 10)}.json`);
+            linkElement.click();
+        }
+        async function exportVocabularyJSON() {
+            const notes = await getAllNotes();
+            const vocabulary = notes.filter(note => note.text.startsWith(".."));
+            const dataStr = JSON.stringify(vocabulary, null, 2);
+            const dataUri = 'data:application/json;charset=utf-8,' + encodeURIComponent(dataStr);
+            const linkElement = document.createElement('a');
+            linkElement.setAttribute('href', dataUri);
+            linkElement.setAttribute('download', `dotdot_vocabulary_${new Date().toISOString().slice(0, 10)}.json`);
+            linkElement.click();
+        }
+
+        function loadJSON(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+            const reader = new FileReader();
+            reader.onload = async function (e) {
+                try {
+                    const importedData = JSON.parse(e.target.result);
+                    if (Array.isArray(importedData)) {
+                        if (confirm("Replace existing notes?")) {
+                            await dbClearAll();
+                            for (const note of importedData) {
+                                await dbAddNote(note);
+                            }
+                            render(true);
+                        }
+                    }
+                } catch (err) { alert("Error reading file: " + err); }
+            };
+            reader.readAsText(file);
+        }
+
+        function importJSON(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+            const reader = new FileReader();
+            reader.onload = async function (e) {
+                try {
+                    const importedData = JSON.parse(e.target.result);
+                    if (Array.isArray(importedData)) {
+                        if (confirm("copy the notes from the file into the existing notes?")) {
+                            for (const note of importedData) {
+                                await dbUpdateNote(note);
+                            }
+                            render(true);
+                        }
+                    }
+                } catch (err) { alert("Error reading file: " + err); }
+            };
+            reader.readAsText(file);
+        }
+
+        window.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape') {
+                if (document.getElementById('shortcutModal').style.display === 'block') {
+                    toggleShortcuts();
+                }
+            }
+        });
+
+        masterInput.addEventListener('keydown', (e) => {
+            updateSelectionFromSearch(e);
+
+            if (popup.style.display === 'block') {
+                if (e.key === 'ArrowDown') { e.preventDefault(); selectedIndex = (selectedIndex + 1) % currentMatches.length; renderPopup(masterInput); }
+                else if (e.key === 'ArrowUp') { e.preventDefault(); selectedIndex = (selectedIndex - 1 + currentMatches.length) % currentMatches.length; renderPopup(masterInput); }
+                else if (e.key === 'Enter' || e.key === 'Tab') { e.preventDefault(); applySuggestion(currentMatches[selectedIndex].code, currentMatches[selectedIndex].value); return; }
+                else if (e.key === 'Escape') { hidePopup(); return; }
+            }
+
+            if (e.key === 'Enter') {
+                addNote(masterInput.value);
+            } else if (e.key === 'Escape') {
+                masterInput.value = '';
+                render();
+            } else if (e.key === 'ArrowUp' && e.ctrlKey) {
+                const items = document.querySelectorAll('.note-item .note-content');
+                if (items.length > 0) {
+                    e.preventDefault();
+                    items[items.length - 1].focus();
+                }
+            }
+        });
+
+        masterInput.addEventListener('input', async (e) => {
+            const val = masterInput.value;
+            const lastWord = val.split(' ').pop().toLowerCase();
+
+            // Check if the current word starts with any of our defined prefixes
+            const activePrefix = supportedPrefixes.find(p => lastWord.startsWith(p)) !== undefined;
+
+            if (activePrefix) {
+                showSuggestions(e.target, lastWord);
+            } else {
+                hidePopup();
+            }
+            render();
+        });
+
+        masterInput.addEventListener('focus', e=>{
+            if(activeTarget != masterInput) {
+                hidePopup();
+            }
+            updateSelectionFromSearch(e);
+        });
+        function updateSelectionFromSearch(e) {
+            lastFocusedElement = e.target;
+            pos = masterInput.selectionEnd;
+        }
+
+
+        function triggerCommand() {
+            if(!lastFocusedElement) return;
+         
+            lastFocusedElement.focus();
+
+            if(lastFocusedElement === masterInput) {
+                const textNode = lastFocusedElement;
+                const startOffset = pos;
+                const value = "..";
+
+                // Update the text in the DOM
+                textNode.value = textNode.value.substring(0, startOffset) +
+                    value +
+                    textNode.value.substring(startOffset);
+
+                // 1. Move cursor to the end of the new text
+                masterInput.selectionStart = startOffset + value.length;
+                masterInput.selectionEnd = startOffset + value.length;
+            } else {
+                const textNode = lastFocusedElement;
+                const startOffset = pos;
+                const value = " ..";
+
+                // Update the text in the DOM
+                textNode.textContent = textNode.textContent.substring(0, startOffset) +
+                    value +
+                    textNode.textContent.substring(startOffset);
+
+                // 1. Move cursor to the end of the new text
+                const sel = window.getSelection();
+                const newRange = document.createRange();
+                const actualTextNode = textNode.firstChild;
+                if (actualTextNode) {
+                    const newCursorPos = startOffset + value.length;
+                    newRange.setStart(actualTextNode, newCursorPos);
+                    newRange.collapse(true);
+                    sel.removeAllRanges();
+                    sel.addRange(newRange);
+                }
+            }
+            
+            // Manually trigger the input event to show the Intellisense popup immediately
+            const event = new Event('input', { target: lastFocusedElement });
+            lastFocusedElement.dispatchEvent(event);
+        }
+
+        let lastFocusedElement;
+        let pos = 0;
+        function updateSelectionFromNote(e){
+            lastFocusedElement = e.target;
+            
+            const sel = window.getSelection();
+            if (!sel.rangeCount) return;
+
+            const range = sel.getRangeAt(0);
+            pos = range.startOffset;
+        }
+
+        function handleNoteFocus(e) {
+            lastFocusedElement = e.target;
+            if(activeTarget != e.target) {
+                hidePopup();
+            }
+        }
+
+        function handleNoteKeydown(e) {
+            updateSelectionFromNote(e);
+
+            if (popup.style.display === 'block') {
+                if (e.key === 'ArrowDown') { e.preventDefault(); selectedIndex = (selectedIndex + 1) % currentMatches.length; renderPopup(e.target); return; }
+                if (e.key === 'ArrowUp') { e.preventDefault(); selectedIndex = (selectedIndex - 1 + currentMatches.length) % currentMatches.length; renderPopup(e.target); return; }
+                if (e.key === 'Enter' || e.key === 'Tab') { e.preventDefault(); applySuggestion(currentMatches[selectedIndex].code, currentMatches[selectedIndex].value); return; }
+                if (e.key === 'Escape') { hidePopup(); return; }
+            }
+            else if (e.key === 'Escape') { masterInput.focus(); }
+
+            const target = e.target;
+            const goUp = (e.key === 'ArrowUp' && e.ctrlKey);
+            const goDown = (e.key === 'ArrowDown' && e.ctrlKey);
+
+            const items = Array.from(document.querySelectorAll('.note-item'));
+            const currentIndex = items.indexOf(target.closest('.note-item'));
+
+            if (goUp && currentIndex > 0) {
+                e.preventDefault();
+                items[currentIndex - 1].querySelector('.note-content').focus();
+            }
+            else if (goDown) {
+                e.preventDefault();
+                if (currentIndex < items.length - 1) {
+                    items[currentIndex + 1].querySelector('.note-content').focus();
+                } else {
+                    masterInput.focus();
+                }
+            }
+        }
+
+        async function handleNoteInput(e) {
+            const sel = window.getSelection();
+            if (!sel.rangeCount) return;
+
+            const range = sel.getRangeAt(0);
+            pos = range.startOffset;
+            // Get text from the start of the node to the current cursor position
+            const textBefore = range.startContainer.textContent.substring(0, range.startOffset);
+
+            // Split by whitespace to get the word currently being typed
+            const words = textBefore.split(/\s/);
+            const lastWord = words[words.length - 1];
+
+            // Check if the current word starts with any of our defined prefixes
+            const activePrefix = supportedPrefixes.find(p => lastWord.startsWith(p)) !== undefined;
+
+            if (activePrefix) {
+                // Pass the target and the word (including prefix) to the popup logic
+                showSuggestions(e.target, lastWord);
+            } else {
+                hidePopup();
+            }
+        }
+
+        function handleSmartCopy(e) {
+            if (window.getSelection().toString().length === 0) {
+                e.preventDefault();
+                navigator.clipboard.writeText(e.currentTarget.innerText).then(() => {
+                    const item = e.currentTarget.closest('.note-item');
+                    item.style.backgroundColor = '#ebf8ff';
+                    setTimeout(() => item.style.backgroundColor = 'white', 200);
+                });
+            }
+        }
+
+        const supportedPrefixes = ['..', ',,', 'dd', 'd+', 'd-', 'M+', 'M-', 'y+', 'y-', 'h+', 'h-'];
+        async function getDynamicShortcodes() {
+            const notes = await getAllNotes();
+            const result = [];
+
+            notes.forEach(note => {
+                const text = note.text.trim();
+                const isShortCode = supportedPrefixes.some(p => text.toLowerCase().startsWith(p));
+
+                // Look for notes starting with ".." but ensure there's a space for the replacement
+                if (isShortCode && text.includes(' ')) {
+                    const firstSpace = text.indexOf(' ');
+                    const code = text.substring(0, firstSpace).toLowerCase();
+                    const replacement = text.substring(firstSpace + 1);
+                    result.push({ keyword: code, replacement: replacement });
+                }
+            });
+
+            return result;
+        }
+
+        async function getStaticShortcodes() {
+            const now = new Date();
+            const getPart = (options) => new Intl.DateTimeFormat('en-GB', options).format(now);
+
+            // Helper to format as yyyy-MM-dd
+            const formatYMD = (date) => date.toISOString().split('T')[0];
+
+            // Helper to shift days
+            const addDays = (days) => {
+                const d = new Date(now);
+                d.setDate(now.getDate() + days);
+                return formatYMD(d);
+            };
+
+            const addHours = (hours) => {
+                const d = new Date(now);
+                d.setHours(now.getHours() + hours);
+                const datePart = d.toISOString().split('T')[0];
+                const timePart = `${String(d.getHours()).padStart(2, '0')}:${String(d.getMinutes()).padStart(2, '0')}`;
+                return `${datePart} ${timePart}`;
+            };
+
+            // Helper for finding specific days of the week (0=Sun, 1=Mon, etc.)
+            const getRelativeDay = (dayIndex, isNext) => {
+                const d = new Date(now);
+                let diff = dayIndex - d.getDay();
+                if (isNext && diff <= 0) diff += 7;
+                if (!isNext && diff >= 0) diff -= 7;
+                d.setDate(d.getDate() + diff);
+                return formatYMD(d);
+            };
+
+            // Helper for finding specific months
+            const getRelativeMonth = (monthIndex, isNext, yearOffset = 0) => {
+                const d = new Date(now.getFullYear() + yearOffset, monthIndex, 1);
+                // If we need the "previous" or "next" instance of a month relative to today
+                if (yearOffset === 0) {
+                    const currentMonth = now.getMonth();
+                    if (isNext && monthIndex <= currentMonth) d.setFullYear(d.getFullYear() + 1);
+                    if (!isNext && monthIndex >= currentMonth) d.setFullYear(d.getFullYear() - 1);
+                }
+                return formatYMD(d);
+            };
+
+            const result = [];
+            result.push({ keyword: "..now", replacement: `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')} ${String(now.getHours()).padStart(2, '0')}:${String(now.getMinutes()).padStart(2, '0')}` });
+            result.push({ keyword: "..time", replacement: `${String(now.getHours()).padStart(2, '0')}:${String(now.getMinutes()).padStart(2, '0')}` });
+            result.push({ keyword: "..date", replacement: formatYMD(now) });
+            result.push({ keyword: "..wd", replacement: getPart({ weekday: 'long' }) });
+            result.push({ keyword: "..mm", replacement: getPart({ month: 'long' }) });
+            result.push({ keyword: "..yy", replacement: String(now.getFullYear()).slice(-2) });
+            result.push({ keyword: "..yyyy", replacement: String(now.getFullYear()) });
+            result.push({ keyword: "..dd", replacement: String(now.getDate()).padStart(2, '0') });
+
+            result.push({ keyword: "..today", replacement: formatYMD(now) });
+            result.push({ keyword: "..yesterday", replacement: addDays(-1) });
+            result.push({ keyword: "..tomorrow", replacement: addDays(1) });
+
+            ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'].forEach((day, i) => {
+                result.push({ keyword: `..l${day}`, replacement: getRelativeDay(i, false) });
+                result.push({ keyword: `..n${day}`, replacement: getRelativeDay(i, true) });
+            });
+
+                // Months (Previous, Next, and specific Year shifts)
+            ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'].forEach((mon, i) => {
+                result.push({ keyword: `..l${mon}`, replacement: getRelativeMonth(i, false) });
+                result.push({ keyword: `..n${mon}`, replacement: getRelativeMonth(i, true) });
+                result.push({ keyword: `..ly${mon}`, replacement: getRelativeMonth(i, false, -1) });
+                result.push({ keyword: `..ny${mon}`, replacement: getRelativeMonth(i, true, 1) });
+            });
+
+            // Year shifts
+            result.push({ keyword: "..ly", keyword: formatYMD(new Date(now.getFullYear() - 1, now.getMonth(), now.getDate())) });
+            result.push({ keyword: "..ny", keyword: formatYMD(new Date(now.getFullYear() + 1, now.getMonth(), now.getDate())) });
+
+            Array.from({ length: 31 }, (_, i) => i + 1).forEach((num, i) => {
+                result.push({ keyword: `d-${num}`, replacement: addDays(-num) });
+                result.push({ keyword: `d+${num}`, replacement: addDays(num) });
+            });
+
+            Array.from({ length: 31 }, (_, i) => i + 1).forEach((num, i) => {
+                result.push({ keyword: `h-${num}`, replacement: addHours(-num) });
+                result.push({ keyword: `h+${num}`, replacement: addHours(num) });
+            });
+
+            return result;
+        }
+        
+        async function getAllShortcodes() {
+            const staticCodes = await getStaticShortcodes();
+            const dynamic = await getDynamicShortcodes();
+
+            const sortedStaticCodes = staticCodes.sort((a, b) => b.keyword.length - a.keyword.length);
+            // inject static codes into dynamic codes, eg. "..park [PARK ..now]" -> "..park [PARK 2024-06-01 14:30]"
+            for (const index in dynamic) {
+                let item = dynamic[index];
+                let value = item.replacement;
+                // sort static codes by length desc to avoid partial replacements, eg. "..yyyy" before "..yy"
+                for (const staticCode of sortedStaticCodes) {
+                    value = value.replaceAll(staticCode.keyword, staticCode.replacement);
+                }
+                item.replacement = value;
+            }
+
+            const allNodes = staticCodes.concat(dynamic);
+            return allNodes.sort((a, b) => b.keyword.length - a.keyword.length);
+        }
+
+        let selectedIndex = 0;
+        let currentMatches = [];
+        let activeTarget = null;
+        const popup = document.getElementById('intellisense');
+
+        async function showSuggestions(target, query) {
+            const all = await getAllShortcodes();
+
+            currentMatches = all
+                .filter(k => k.keyword.toLowerCase().startsWith(query))
+                .map(k => ({ code: k.keyword, value: k.replacement }));
+
+            if (currentMatches.length === 0) {
+                hidePopup();
+                return;
+            }
+
+            activeTarget = target;
+            selectedIndex = 0;
+            renderPopup(target);
+        }
+
+        function renderPopup(target) {
+            popup.innerHTML = currentMatches.map((m, i) =>
+                `<div class="suggestion-item ${i === selectedIndex ? 'active' : ''}" onclick="applySuggestion('${m.code}', '${m.value}')">
+                <strong>${m.code}</strong><br><small>${m.value.substring(0, 20)}</small>
+            </div>`
+            ).join('');
+
+            // Set display first so we can measure the popup's height
+            popup.style.display = 'block';
+
+            const rect = target.getBoundingClientRect();
+            const popupHeight = popup.offsetHeight;
+            const margin = 5;
+
+            if (target.id === 'masterInput') {
+                // Position: Above for MasterInput
+                popup.style.top = 'auto'; // Reset top if it was previously set
+                popup.style.bottom = (window.innerHeight - rect.top + margin) + 'px';
+                popup.style.left = rect.left + 'px';
+            } else {
+                const sel = window.getSelection();
+                const range = sel.getRangeAt(0).getClientRects()[0];
+
+                // Calculate vertical positioning
+                const spaceBelow = window.innerHeight - range.bottom;
+
+                // Reset styles to avoid conflicts
+                popup.style.bottom = 'auto';
+                popup.style.top = 'auto';
+
+                if (spaceBelow < popupHeight + margin) {
+                    // Not enough room below: flip to top
+                    popup.style.top = (window.scrollY + range.top - popupHeight - margin) + 'px';
+                } else {
+                    // Enough room: position below
+                    popup.style.top = (window.scrollY + range.bottom + margin) + 'px';
+                }
+
+                popup.style.left = range.left + 'px';
+            }
+        }
+
+        function applySuggestion(code, value) {
+            if (!activeTarget) return;
+
+            activeTarget.focus();
+
+            if (activeTarget.tagName === 'INPUT') {
+                const val = activeTarget.value;
+                const lastWord = val.split(/\s/).pop();
+                activeTarget.value = val.substring(0, val.length - lastWord.length) + value;
+            } else {
+                const textNode = activeTarget;
+
+                // Find the specific ".." word to replace
+                const textBefore = textNode.textContent.substring(0, pos);
+                const words = textBefore.split(/\s/);
+                const lastWord = words[words.length - 1];
+
+                const startOffset = pos - lastWord.length;
+
+                // Update the text in the DOM
+                textNode.textContent = textNode.textContent.substring(0, startOffset) +
+                    value +
+                    textNode.textContent.substring(pos);
+
+                // 1. Move cursor to the end of the new text
+                const sel = window.getSelection();
+                const newRange = document.createRange();
+                const actualTextNode = activeTarget.firstChild;
+                if (actualTextNode) {
+                    const newCursorPos = startOffset + value.length;
+                    newRange.setStart(actualTextNode, newCursorPos);
+                    newRange.collapse(true);
+                    sel.removeAllRanges();
+                    sel.addRange(newRange);
+                }
+
+                // 2. IMPORTANT: Save to Database
+                const noteItem = activeTarget.closest('.note-item');
+                if (noteItem) {
+                    const noteId = parseInt(noteItem.dataset.id);
+                    // We pass the updated innerText to the database
+                    handleUpdate(noteId, activeTarget.innerText);
+                }
+            }
+
+            if (activeTarget === masterInput)
+                render();
+
+            hidePopup();
+        }
+
+        function hidePopup() {
+            popup.style.display = 'none';
+            activeTarget = null;
+        }
+
+        if (window.visualViewport) {
+            window.visualViewport.addEventListener('resize', () => {
+                // Adjust the body height to exactly match the visible area
+                document.body.style.height = window.visualViewport.height + 'px';
+
+                // Scroll the active element into view if it's the input
+                if (document.activeElement.id === 'masterInput') {
+                    setTimeout(() => {
+                        document.activeElement.scrollIntoView({ block: 'end' });
+                    }, 50);
+                }
+            });
+        }
+
+        initDB().then(() => render(true));
+    </script>
+
+
+</body>
+
+</html>
