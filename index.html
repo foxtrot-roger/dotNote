@@ -140,8 +140,15 @@
             padding: 10px 14px;
             font-size: 0.95rem;
             outline: none;
-            white-space: pre-wrap;
+            border: none;
+            background: transparent;
+            font-family: 'Consolas', 'Monaco', monospace;
+            width: 100%;
+            resize: none;
+            overflow: hidden;
             line-height: 1.5;
+            display: block;
+            min-height: 1.5em;
         }
 
         .actions {
@@ -577,26 +584,30 @@
                     return true;
                 })
                 .map(note => `
-            <div class="note-item" data-id="${note.id}">
-                <div class="note-content" 
-                     contenteditable="true" 
-                     spellcheck="false"
-                     onclick="updateSelectionFromNote({target: this})"
-                     oninput="handleNoteInput(event)"
-                     onkeydown="handleNoteKeydown(event)"
-                     oncopy="handleSmartCopy(event)"
-                     onfocus="handleNoteFocus(event)"
-                     onblur="handleUpdate(${note.id}, this.innerText)">${note.text}</div>
-                <div class="actions">
-                    <button class="btn-action" title="Copy" onclick="copyToClipboard(this.parentElement.previousElementSibling.innerText)">📋</button>
-                    <button class="btn-action" title="Delete" style="color:var(--danger)" onclick="deleteNote(${note.id})">✕</button>
-                </div>
-            </div>
+<div class="note-item" data-id="${note.id}">
+    <textarea 
+         class="note-content" 
+         spellcheck="false"
+         onkeydown="handleNoteKeydown(event)"
+         oninput="autoExpand(this); handleNoteInput(event)"
+         onfocus="handleNoteFocus(event)"
+         onblur="handleUpdate(${note.id}, this.value)">${note.text}</textarea>
+    <div class="actions">
+        <button class="btn-action" title="Copy" onclick="copyToClipboard(this.parentElement.previousElementSibling.value)">📋</button>
+        <button class="btn-action" title="Delete" style="color:var(--danger)" onclick="deleteNote(${note.id})">✕</button>
+    </div>
+</div>
         `).join('');
 
+        document.querySelectorAll('.note-content').forEach(el => autoExpand(el));
             if (shouldScroll || query === "") {
                 notesList.scrollTop = notesList.scrollHeight;
             }
+        }
+
+        function autoExpand(el) {
+            el.style.height = 'auto';
+            el.style.height = el.scrollHeight + 'px';
         }
 
         async function addNote(text) {
@@ -783,49 +794,40 @@
 
 
         function triggerCommand() {
-            if(!lastFocusedElement) return;
-         
-            lastFocusedElement.focus();
+            if (!lastFocusedElement) {
+                // If nothing is focused, default to the search box
+                masterInput.focus();
+                lastFocusedElement = masterInput;
+            }
 
-            if(lastFocusedElement === masterInput) {
-                const textNode = lastFocusedElement;
-                const startOffset = pos;
-                const value = "..";
+            const el = lastFocusedElement;
+            el.focus();
 
-                // Update the text in the DOM
-                textNode.value = textNode.value.substring(0, startOffset) +
-                    value +
-                    textNode.value.substring(startOffset);
+            // In a textarea/input, we use value and selectionStart/End
+            const start = el.selectionStart;
+            const end = el.selectionEnd;
+            const text = el.value;
+            const command = " ..";
 
-                // 1. Move cursor to the end of the new text
-                masterInput.selectionStart = startOffset + value.length;
-                masterInput.selectionEnd = startOffset + value.length;
-            } else {
-                const textNode = lastFocusedElement;
-                const startOffset = pos;
-                const value = " ..";
+            // Insert the command at the current cursor position
+            el.value = text.substring(0, start) + command + text.substring(end);
 
-                // Update the text in the DOM
-                textNode.textContent = textNode.textContent.substring(0, startOffset) +
-                    value +
-                    textNode.textContent.substring(startOffset);
+            // Move the cursor to the end of the ".."
+            const newPos = start + command.length;
+            el.setSelectionRange(newPos, newPos);
 
-                // 1. Move cursor to the end of the new text
-                const sel = window.getSelection();
-                const newRange = document.createRange();
-                const actualTextNode = textNode.firstChild;
-                if (actualTextNode) {
-                    const newCursorPos = startOffset + value.length;
-                    newRange.setStart(actualTextNode, newCursorPos);
-                    newRange.collapse(true);
-                    sel.removeAllRanges();
-                    sel.addRange(newRange);
+            // If it's a note (textarea), we need to handle the height and DB update
+            if (el !== masterInput) {
+                autoExpand(el); // Ensure textarea grows if the command adds a line
+                const noteItem = el.closest('.note-item');
+                if (noteItem) {
+                    handleUpdate(parseInt(noteItem.dataset.id), el.value);
                 }
             }
-            
-            // Manually trigger the input event to show the Intellisense popup immediately
-            const event = new Event('input', { target: lastFocusedElement });
-            lastFocusedElement.dispatchEvent(event);
+
+            // Manually trigger the input event to show the Intellisense popup
+            const event = new Event('input', { bubbles: true });
+            el.dispatchEvent(event);
         }
 
         let lastFocusedElement;
@@ -848,7 +850,6 @@
         }
 
         function handleNoteKeydown(e) {
-            updateSelectionFromNote(e);
 
             if (popup.style.display === 'block') {
                 if (e.key === 'ArrowDown') { e.preventDefault(); selectedIndex = (selectedIndex + 1) % currentMatches.length; renderPopup(e.target); return; }
@@ -877,27 +878,23 @@
                     masterInput.focus();
                 }
             }
+
+            updateSelectionFromNote(e);
+
         }
 
-        async function handleNoteInput(e) {
-            const sel = window.getSelection();
-            if (!sel.rangeCount) return;
-
-            const range = sel.getRangeAt(0);
-            pos = range.startOffset;
-            // Get text from the start of the node to the current cursor position
-            const textBefore = range.startContainer.textContent.substring(0, range.startOffset);
-
-            // Split by whitespace to get the word currently being typed
+         async function handleNoteInput(e) {
+            const input = e.target;
+            pos = input.selectionEnd;
+            
+            const textBefore = input.value.substring(0, pos);
             const words = textBefore.split(/\s/);
             const lastWord = words[words.length - 1];
 
-            // Check if the current word starts with any of our defined prefixes
             const activePrefix = supportedPrefixes.find(p => lastWord.startsWith(p)) !== undefined;
 
             if (activePrefix) {
-                // Pass the target and the word (including prefix) to the popup logic
-                showSuggestions(e.target, lastWord);
+                showSuggestions(input, lastWord);
             } else {
                 hidePopup();
             }
@@ -1068,42 +1065,38 @@
         function renderPopup(target) {
             popup.innerHTML = currentMatches.map((m, i) =>
                 `<div class="suggestion-item ${i === selectedIndex ? 'active' : ''}" onclick="applySuggestion('${m.code}', '${m.value}')">
-                <strong>${m.code}</strong><br><small>${m.value.substring(0, 20)}</small>
-            </div>`
+                    <strong>${m.code}</strong><br><small>${m.value.substring(0, 20)}</small>
+                </div>`
             ).join('');
 
-            // Set display first so we can measure the popup's height
             popup.style.display = 'block';
 
             const rect = target.getBoundingClientRect();
-            const popupHeight = popup.offsetHeight;
             const margin = 5;
 
             if (target.id === 'masterInput') {
-                // Position: Above for MasterInput
-                popup.style.top = 'auto'; // Reset top if it was previously set
+                // Position: Always ABOVE the search bar
+                popup.style.top = 'auto'; 
                 popup.style.bottom = (window.innerHeight - rect.top + margin) + 'px';
                 popup.style.left = rect.left + 'px';
             } else {
-                const sel = window.getSelection();
-                const range = sel.getRangeAt(0).getClientRects()[0];
+                // Position: Usually BELOW the note line you're typing on
+                // For textareas, the most reliable 'clean' look is attaching it 
+                // to the bottom of the textarea or the specific line.
+                const spaceBelow = window.innerHeight - rect.bottom;
+                const popupHeight = popup.offsetHeight;
 
-                // Calculate vertical positioning
-                const spaceBelow = window.innerHeight - range.bottom;
-
-                // Reset styles to avoid conflicts
                 popup.style.bottom = 'auto';
-                popup.style.top = 'auto';
-
-                if (spaceBelow < popupHeight + margin) {
-                    // Not enough room below: flip to top
-                    popup.style.top = (window.scrollY + range.top - popupHeight - margin) + 'px';
-                } else {
-                    // Enough room: position below
-                    popup.style.top = (window.scrollY + range.bottom + margin) + 'px';
-                }
-
-                popup.style.left = range.left + 'px';
+                
+                // if (spaceBelow < popupHeight + margin) {
+                //     // Flip to top if no room below
+                //     popup.style.top = (rect.top - popupHeight - margin) + 'px';
+                // } else {
+                //     popup.style.top = (rect.bottom + margin) + 'px';
+                // }
+                popup.style.top = (rect.bottom + margin) + 'px';
+                
+                popup.style.left = rect.left + 'px';
             }
         }
 
@@ -1111,50 +1104,30 @@
             if (!activeTarget) return;
 
             activeTarget.focus();
+            
+            // Works for both masterInput and note-item inputs now!
+            const val = activeTarget.value;
+            const textBefore = val.substring(0, pos);
+            const words = textBefore.split(/\s/);
+            const lastWord = words[words.length - 1];
+            
+            const startOffset = pos - lastWord.length;
+            const newVal = val.substring(0, startOffset) + value + val.substring(pos);
+            
+            activeTarget.value = newVal;
 
-            if (activeTarget.tagName === 'INPUT') {
-                const val = activeTarget.value;
-                const lastWord = val.split(/\s/).pop();
-                activeTarget.value = val.substring(0, val.length - lastWord.length) + value;
-            } else {
-                const textNode = activeTarget;
+            // Set caret position to the end of the inserted text
+            const newPos = startOffset + value.length;
+            activeTarget.setSelectionRange(newPos, newPos);
 
-                // Find the specific ".." word to replace
-                const textBefore = textNode.textContent.substring(0, pos);
-                const words = textBefore.split(/\s/);
-                const lastWord = words[words.length - 1];
-
-                const startOffset = pos - lastWord.length;
-
-                // Update the text in the DOM
-                textNode.textContent = textNode.textContent.substring(0, startOffset) +
-                    value +
-                    textNode.textContent.substring(pos);
-
-                // 1. Move cursor to the end of the new text
-                const sel = window.getSelection();
-                const newRange = document.createRange();
-                const actualTextNode = activeTarget.firstChild;
-                if (actualTextNode) {
-                    const newCursorPos = startOffset + value.length;
-                    newRange.setStart(actualTextNode, newCursorPos);
-                    newRange.collapse(true);
-                    sel.removeAllRanges();
-                    sel.addRange(newRange);
-                }
-
-                // 2. IMPORTANT: Save to Database
-                const noteItem = activeTarget.closest('.note-item');
-                if (noteItem) {
-                    const noteId = parseInt(noteItem.dataset.id);
-                    // We pass the updated innerText to the database
-                    handleUpdate(noteId, activeTarget.innerText);
-                }
+            // Save to DB if it's a note
+            const noteItem = activeTarget.closest('.note-item');
+            if (noteItem) {
+                const noteId = parseInt(noteItem.dataset.id);
+                handleUpdate(noteId, activeTarget.value);
             }
 
-            if (activeTarget === masterInput)
-                render();
-
+            if (activeTarget === masterInput) render();
             hidePopup();
         }
 
