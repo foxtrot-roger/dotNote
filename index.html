@@ -581,6 +581,7 @@
                 <div class="note-content" 
                      contenteditable="true" 
                      spellcheck="false"
+                     onclick="updateSelectionFromNote({target: this})"
                      oninput="handleNoteInput(event)"
                      onkeydown="handleNoteKeydown(event)"
                      oncopy="handleSmartCopy(event)"
