@@ -3,7 +3,7 @@
 <meta http-equiv="content-type" content="text/html; charset=UTF-8">
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Quick Notes - Full Width Chat</title>
+    <title>dotNotes - type, find, expand.</title>
     <style>
         :root {
             --bg: #f8fafc;
@@ -440,17 +440,25 @@
             <h3>Menu</h3>
             <button class="btn-action" onclick="toggleMenu()">✕</button>
         </div>
+        
+        <div class="menu-section">
+            <h4>Download</h4>
+            <button class="menu-btn" onclick="downloadDotNote()">Standalone version</button>
+        </div>
+
         <div class="menu-section">
             <h4>Export</h4>
             <button class="menu-btn" onclick="exportJSON()">Everything</button>
             <button class="menu-btn" onclick="exportNotesJSON()">Notes Only</button>
             <button class="menu-btn" onclick="exportVocabularyJSON()">Vocabulary Only</button>
         </div>
+        
         <div class="menu-section">
             <h4>Import</h4>
             <button class="menu-btn" onclick="document.getElementById('loadFile').click()">Load (Replace)</button>
             <button class="menu-btn" onclick="document.getElementById('importFile').click()">Import (Merge)</button>
         </div>
+
         <input type="file" id="loadFile" style="display:none" accept=".json" onchange="loadJSON(event)">
         <input type="file" id="importFile" style="display:none" accept=".json" onchange="importJSON(event)">
     </div>
@@ -664,6 +672,12 @@
             const linkElement = document.createElement('a');
             linkElement.setAttribute('href', dataUri);
             linkElement.setAttribute('download', `dotdot_vocabulary_${new Date().toISOString().slice(0, 10)}.json`);
+            linkElement.click();
+        }
+        function downloadDotNote() {
+            const linkElement = document.createElement('a');
+            linkElement.setAttribute('href', window.location.href);
+            linkElement.setAttribute('download', `dotNote.html`);
             linkElement.click();
         }
 
