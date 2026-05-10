@@ -889,7 +889,7 @@
             
             const textBefore = input.value.substring(0, pos);
             const words = textBefore.split(/\s/);
-            const lastWord = words[words.length - 1];
+            const lastWord = words[words.length - 1].toLowerCase();
 
             const activePrefix = supportedPrefixes.find(p => lastWord.startsWith(p)) !== undefined;
 
@@ -948,13 +948,20 @@
             generateDateKeywords(result, now, "..quarter", x => x.formatYQ());
             generateDateKeywords(result, now, "..year", x => x.formatY());
             
-            generateDateKeywords(result, now.startOfDay(), "..sod", x => x.formatYMDHM());
-            generateDateKeywords(result, now.endOfDay(), "..eod", x => x.formatYMDHM());
+            generateDateKeywords(result, now.startOfDay(), "..startOfDay", x => x.formatYMDHM());
+            generateDateKeywords(result, now.endOfDay(), "..endOfDay", x => x.formatYMDHM());
             
-            generateDateKeywords(result, now.startOfWeek(), "..sow", x => x.formatYMD());
-            generateDateKeywords(result, now.endOfWeek(), "..eow", x => x.formatYMD());
-            generateDateKeywords(result, now.startOfWorkWeek(), "..soww", x => x.formatYMD());
-            generateDateKeywords(result, now.endOfWorkWeek(), "..eoww", x => x.formatYMD());
+            generateDateKeywords(result, now.startOfWeek(), "..startOfWeek", x => x.formatYMD());
+            generateDateKeywords(result, now.endOfWeek(), "..endOfWeek", x => x.formatYMD());
+            generateDateKeywords(result, now.startOfWorkWeek(), "..startOfWorkWeek", x => x.formatYMD());
+            generateDateKeywords(result, now.endOfWorkWeek(), "..endOfWorkWeek", x => x.formatYMD());
+
+            result.push({ keyword: "..sod", replacement: "..startOfDay" });
+            result.push({ keyword: "..eod", replacement: "..endOfDay" });
+            result.push({ keyword: "..sow", replacement: "..startOfWeek" });
+            result.push({ keyword: "..eow", replacement: "..endOfWeek" });
+            result.push({ keyword: "..sow", replacement: "..startOfWorkWeek" });
+            result.push({ keyword: "..eow", replacement: "..endOfWorkWeek" });
 
             return result;
         }
@@ -981,7 +988,15 @@
                 item.replacement = value;
             }
 
-            const visibleDateCodes = staticCodes.filter(k => !k.mustStartWith || query.startsWith(k.mustStartWith))
+            const visibleDateCodes = staticCodes.filter(k => {
+                if(k.excludeExactMatch && query== k.replacement.toLowerCase())
+                    return false;
+
+                if(!k.mustStartWith || query.startsWith(k.mustStartWith.toLowerCase()))
+                    return true;
+
+                return false;
+            });
 
             const allNodes = visibleDateCodes.concat(dynamic);
             return allNodes.sort((a, b) => b.keyword.length - a.keyword.length);
@@ -990,24 +1005,27 @@
         function generateDateKeywords(result, now, baseKeyword, formatMethod) {
             result.push({ keyword: baseKeyword, replacement: formatMethod(now) });
 
-            result.push({ mustStartWith: baseKeyword, keyword: `${baseKeyword}-1second`, replacement: formatMethod(now.addSeconds(-1)) });
-            result.push({ mustStartWith: baseKeyword, keyword: `${baseKeyword}-1minute`, replacement: formatMethod(now.addMinutes(-1)) });
-            result.push({ mustStartWith: baseKeyword, keyword: `${baseKeyword}-1hour`, replacement: formatMethod(now.addHours(-1)) });
-            result.push({ mustStartWith: baseKeyword, keyword: `${baseKeyword}-1day`, replacement: formatMethod(now.addDays(-1)) });
-            result.push({ mustStartWith: baseKeyword, keyword: `${baseKeyword}-1week`, replacement: formatMethod(now.addWeeks(-1)) });
-            result.push({ mustStartWith: baseKeyword, keyword: `${baseKeyword}-1month`, replacement: formatMethod(now.addMonths(-1)) });
-            result.push({ mustStartWith: baseKeyword, keyword: `${baseKeyword}-1quarter`, replacement: formatMethod(now.addQuarters(-1)) });
-            result.push({ mustStartWith: baseKeyword, keyword: `${baseKeyword}-1year`, replacement: formatMethod(now.addYears(-1)) });
-
-            result.push({ mustStartWith: baseKeyword, keyword: `${baseKeyword}+1second`, replacement: formatMethod(now.addSeconds(+1)) });
-            result.push({ mustStartWith: baseKeyword, keyword: `${baseKeyword}+1minute`, replacement: formatMethod(now.addMinutes(+1)) });
-            result.push({ mustStartWith: baseKeyword, keyword: `${baseKeyword}+1hour`, replacement: formatMethod(now.addHours(+1)) });
-            result.push({ mustStartWith: baseKeyword, keyword: `${baseKeyword}+1day`, replacement: formatMethod(now.addDays(+1)) });
-            result.push({ mustStartWith: baseKeyword, keyword: `${baseKeyword}+1week`, replacement: formatMethod(now.addWeeks(+1)) });
-            result.push({ mustStartWith: baseKeyword, keyword: `${baseKeyword}+1month`, replacement: formatMethod(now.addMonths(+1)) });
-            result.push({ mustStartWith: baseKeyword, keyword: `${baseKeyword}+1quarter`, replacement: formatMethod(now.addQuarters(+1)) });
-            result.push({ mustStartWith: baseKeyword, keyword: `${baseKeyword}+1year`, replacement: formatMethod(now.addYears(+1)) });
+            result.push({ excludeExactMatch: true, keyword: `${baseKeyword} - duration`, replacement: `${baseKeyword}-` });
+            result.push({ excludeExactMatch: true, keyword: `${baseKeyword} + duration`, replacement: `${baseKeyword}+` });
             
+            result.push({ mustStartWith: `${baseKeyword}-`, keyword: `${baseKeyword}-1second`, replacement: formatMethod(now.addSeconds(-1)) });
+            result.push({ mustStartWith: `${baseKeyword}-`, keyword: `${baseKeyword}-1minute`, replacement: formatMethod(now.addMinutes(-1)) });
+            result.push({ mustStartWith: `${baseKeyword}-`, keyword: `${baseKeyword}-1hour`, replacement: formatMethod(now.addHours(-1)) });
+            result.push({ mustStartWith: `${baseKeyword}-`, keyword: `${baseKeyword}-1day`, replacement: formatMethod(now.addDays(-1)) });
+            result.push({ mustStartWith: `${baseKeyword}-`, keyword: `${baseKeyword}-1week`, replacement: formatMethod(now.addWeeks(-1)) });
+            result.push({ mustStartWith: `${baseKeyword}-`, keyword: `${baseKeyword}-1month`, replacement: formatMethod(now.addMonths(-1)) });
+            result.push({ mustStartWith: `${baseKeyword}-`, keyword: `${baseKeyword}-1quarter`, replacement: formatMethod(now.addQuarters(-1)) });
+            result.push({ mustStartWith: `${baseKeyword}-`, keyword: `${baseKeyword}-1year`, replacement: formatMethod(now.addYears(-1)) });
+
+            result.push({ mustStartWith: `${baseKeyword}+`, keyword: `${baseKeyword}+1second`, replacement: formatMethod(now.addSeconds(+1)) });
+            result.push({ mustStartWith: `${baseKeyword}+`, keyword: `${baseKeyword}+1minute`, replacement: formatMethod(now.addMinutes(+1)) });
+            result.push({ mustStartWith: `${baseKeyword}+`, keyword: `${baseKeyword}+1hour`, replacement: formatMethod(now.addHours(+1)) });
+            result.push({ mustStartWith: `${baseKeyword}+`, keyword: `${baseKeyword}+1day`, replacement: formatMethod(now.addDays(+1)) });
+            result.push({ mustStartWith: `${baseKeyword}+`, keyword: `${baseKeyword}+1week`, replacement: formatMethod(now.addWeeks(+1)) });
+            result.push({ mustStartWith: `${baseKeyword}+`, keyword: `${baseKeyword}+1month`, replacement: formatMethod(now.addMonths(+1)) });
+            result.push({ mustStartWith: `${baseKeyword}+`, keyword: `${baseKeyword}+1quarter`, replacement: formatMethod(now.addQuarters(+1)) });
+            result.push({ mustStartWith: `${baseKeyword}+`, keyword: `${baseKeyword}+1year`, replacement: formatMethod(now.addYears(+1)) });
+
             for (let index = 2; index < 100; index++) {
                 result.push({ mustStartWith: `${baseKeyword}-${index}`, keyword: `${baseKeyword}-${index}second`, replacement: formatMethod(now.addSeconds(-index)) });
                 result.push({ mustStartWith: `${baseKeyword}-${index}`, keyword: `${baseKeyword}-${index}minute`, replacement: formatMethod(now.addMinutes(-index)) });
@@ -1040,6 +1058,7 @@
 
             currentMatches = all
                 .filter(k => k.keyword.toLowerCase().startsWith(query))
+                .sort((a, b) => a.keyword.localeCompare(b.keyword))
                 .map(k => ({ code: k.keyword, value: k.replacement }));
 
             if (currentMatches.length === 0) {
@@ -1117,8 +1136,14 @@
                 handleUpdate(noteId, activeTarget.value);
             }
 
-            if (activeTarget === masterInput) render();
+            const snapshotActiveTarget = activeTarget;
+            if (activeTarget === masterInput)
+                render();
+            
             hidePopup();
+
+            const event = new Event('input', { bubbles: true });
+            snapshotActiveTarget.dispatchEvent(event);
         }
 
         function hidePopup() {
