@@ -124,6 +124,7 @@
             width: 100%;
             /* Full width */
             box-sizing: border-box;
+            padding: 10px;
         }
 
         .note-item:focus-within {
@@ -137,8 +138,6 @@
 
         .note-content {
             flex-grow: 1;
-            padding: 10px 14px;
-            font-size: 0.95rem;
             outline: none;
             border: none;
             background: transparent;
@@ -146,14 +145,11 @@
             width: 100%;
             resize: none;
             overflow: hidden;
-            line-height: 1.5;
             display: block;
-            min-height: 1.5em;
         }
 
         .actions {
             display: flex;
-            padding: 6px;
             opacity: 0;
             gap: 2px;
         }
@@ -166,7 +162,6 @@
         .btn-action {
             background: none;
             border: none;
-            padding: 4px;
             cursor: pointer;
             color: #cbd5e0;
             font-size: 0.85rem;
@@ -607,7 +602,11 @@
 
         function autoExpand(el) {
             el.style.height = 'auto';
-            el.style.height = el.scrollHeight + 'px';
+
+            if(el.value.split('\n').length > 1)
+                el.style.height = el.scrollHeight + 'px';
+            else
+                el.style.height = '1rem';
         }
 
         async function addNote(text) {
