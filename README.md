@@ -3,6 +3,8 @@
 
 **dotNote** is a minimalist, keyboard-first note system built around full-text search and text expansion.
 
+![Alt Text: dotNote in action](dotNote.gif)
+
 ## 🌐 Live Access & 📥 Local Setup
 
 You can use the live version immediately:
@@ -10,6 +12,7 @@ You can use the live version immediately:
 
 **Take it with you:** dotNote is a single-file application, it works entirely offline. You can download the `index.html` directly from the app (using the "Export" or "Download" feature).
 ⚠️ Do not save the webpage (`Ctrl+S`) from the browser as the page is generated on the fly. 
+
 
 ## TLDR; How it works
 

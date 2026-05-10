@@ -761,7 +761,7 @@
 
         masterInput.addEventListener('input', async (e) => {
             const val = masterInput.value;
-            const lastWord = val.split(' ').pop().toLowerCase();
+            const lastWord = val.split(' ').pop();//.toLowerCase();
 
             // Check if the current word starts with any of our defined prefixes
             const activePrefix = supportedPrefixes.find(p => lastWord.startsWith(p)) !== undefined;
@@ -882,7 +882,7 @@
             
             const textBefore = input.value.substring(0, pos);
             const words = textBefore.split(/\s/);
-            const lastWord = words[words.length - 1].toLowerCase();
+            const lastWord = words[words.length - 1];//.toLowerCase();
 
             const activePrefix = supportedPrefixes.find(p => lastWord.startsWith(p)) !== undefined;
 
@@ -929,9 +929,9 @@
             const now = new Date();
             const result = [];
 
-            result.push({ keyword: "..today", replacement: now.formatYMD() });
-            result.push({ keyword: "..yesterday", replacement: now.addDays(-1).formatYMD() });
-            result.push({ keyword: "..tomorrow", replacement: now.addDays(1).formatYMD() });
+            addKeywordReplacements(result, { keyword: "..today", replacement: now.formatYMD() });
+            addKeywordReplacements(result, { keyword: "..yesterday", replacement: now.addDays(-1).formatYMD() });
+            addKeywordReplacements(result, { keyword: "..tomorrow", replacement: now.addDays(1).formatYMD() });
 
             generateDateKeywords(result, now, "..now", x => x.formatYMDHM());
             generateDateKeywords(result, now, "..time", x => x.formatHM());
@@ -948,13 +948,7 @@
             generateDateKeywords(result, now.endOfWeek(), "..endOfWeek", x => x.formatYMD());
             generateDateKeywords(result, now.startOfWorkWeek(), "..startOfWorkWeek", x => x.formatYMD());
             generateDateKeywords(result, now.endOfWorkWeek(), "..endOfWorkWeek", x => x.formatYMD());
-
-            result.push({ keyword: "..sod", replacement: "..startOfDay" });
-            result.push({ keyword: "..eod", replacement: "..endOfDay" });
-            result.push({ keyword: "..sow", replacement: "..startOfWeek" });
-            result.push({ keyword: "..eow", replacement: "..endOfWeek" });
-            result.push({ keyword: "..sow", replacement: "..startOfWorkWeek" });
-            result.push({ keyword: "..eow", replacement: "..endOfWorkWeek" });
+            
 
             return result;
         }
@@ -963,7 +957,7 @@
             const staticCodes = await getStaticShortcodes(query);
             const dynamic = await getDynamicShortcodes();
 
-            const dictionary = staticCodes.reduce((acc, item) => {
+            const dictionary = staticCodes.filter(x => x.keyword != x.replacement).reduce((acc, item) => {
               acc[item.keyword] = item.replacement;
               return acc;
             }, {});
@@ -982,63 +976,77 @@
             }
 
             const visibleDateCodes = staticCodes.filter(k => {
-                if(k.excludeExactMatch && query== k.replacement.toLowerCase())
+                if(k.mustStartWith && !query.toLowerCase().startsWith(k.mustStartWith.toLowerCase()))
                     return false;
 
-                if(!k.mustStartWith || query.startsWith(k.mustStartWith.toLowerCase()))
-                    return true;
+                if(k.excludeExactMatch)
+                {
+                    return k.keyword.toLowerCase().startsWith(query.toLowerCase()) 
+                        && k.keyword.toLowerCase() != query.toLowerCase() 
+                }
 
-                return false;
+                return k.keyword.toLowerCase() == query.toLowerCase();
             });
 
             const allNodes = visibleDateCodes.concat(dynamic);
             return allNodes.sort((a, b) => b.keyword.length - a.keyword.length);
         }
-
+        function addKeywordReplacements(array, item) {
+            array.push(item);
+            array.push({ excludeExactMatch: true, mustStartWith: item.mustStartWith, keyword: item.keyword, replacement: item.keyword })
+        };
         function generateDateKeywords(result, now, baseKeyword, formatMethod) {
-            result.push({ keyword: baseKeyword, replacement: formatMethod(now) });
+            addKeywordReplacements(result, { keyword: baseKeyword, replacement: formatMethod(now) });
 
             result.push({ excludeExactMatch: true, keyword: `${baseKeyword} - duration`, replacement: `${baseKeyword}-` });
             result.push({ excludeExactMatch: true, keyword: `${baseKeyword} + duration`, replacement: `${baseKeyword}+` });
             
-            result.push({ mustStartWith: `${baseKeyword}-`, keyword: `${baseKeyword}-1second`, replacement: formatMethod(now.addSeconds(-1)) });
-            result.push({ mustStartWith: `${baseKeyword}-`, keyword: `${baseKeyword}-1minute`, replacement: formatMethod(now.addMinutes(-1)) });
-            result.push({ mustStartWith: `${baseKeyword}-`, keyword: `${baseKeyword}-1hour`, replacement: formatMethod(now.addHours(-1)) });
-            result.push({ mustStartWith: `${baseKeyword}-`, keyword: `${baseKeyword}-1day`, replacement: formatMethod(now.addDays(-1)) });
-            result.push({ mustStartWith: `${baseKeyword}-`, keyword: `${baseKeyword}-1week`, replacement: formatMethod(now.addWeeks(-1)) });
-            result.push({ mustStartWith: `${baseKeyword}-`, keyword: `${baseKeyword}-1month`, replacement: formatMethod(now.addMonths(-1)) });
-            result.push({ mustStartWith: `${baseKeyword}-`, keyword: `${baseKeyword}-1quarter`, replacement: formatMethod(now.addQuarters(-1)) });
-            result.push({ mustStartWith: `${baseKeyword}-`, keyword: `${baseKeyword}-1year`, replacement: formatMethod(now.addYears(-1)) });
+            addKeywordReplacements(result, { mustStartWith: `${baseKeyword}-`, keyword: `${baseKeyword}-1second`, replacement: formatMethod(now.addSeconds(-1)) });
+            addKeywordReplacements(result, { mustStartWith: `${baseKeyword}-`, keyword: `${baseKeyword}-1minute`, replacement: formatMethod(now.addMinutes(-1)) });
+            addKeywordReplacements(result, { mustStartWith: `${baseKeyword}-`, keyword: `${baseKeyword}-1hour`, replacement: formatMethod(now.addHours(-1)) });
+            addKeywordReplacements(result, { mustStartWith: `${baseKeyword}-`, keyword: `${baseKeyword}-1day`, replacement: formatMethod(now.addDays(-1)) });
+            addKeywordReplacements(result, { mustStartWith: `${baseKeyword}-`, keyword: `${baseKeyword}-1week`, replacement: formatMethod(now.addWeeks(-1)) });
+            addKeywordReplacements(result, { mustStartWith: `${baseKeyword}-`, keyword: `${baseKeyword}-1month`, replacement: formatMethod(now.addMonths(-1)) });
+            addKeywordReplacements(result, { mustStartWith: `${baseKeyword}-`, keyword: `${baseKeyword}-1quarter`, replacement: formatMethod(now.addQuarters(-1)) });
+            addKeywordReplacements(result, { mustStartWith: `${baseKeyword}-`, keyword: `${baseKeyword}-1year`, replacement: formatMethod(now.addYears(-1)) });
 
-            result.push({ mustStartWith: `${baseKeyword}+`, keyword: `${baseKeyword}+1second`, replacement: formatMethod(now.addSeconds(+1)) });
-            result.push({ mustStartWith: `${baseKeyword}+`, keyword: `${baseKeyword}+1minute`, replacement: formatMethod(now.addMinutes(+1)) });
-            result.push({ mustStartWith: `${baseKeyword}+`, keyword: `${baseKeyword}+1hour`, replacement: formatMethod(now.addHours(+1)) });
-            result.push({ mustStartWith: `${baseKeyword}+`, keyword: `${baseKeyword}+1day`, replacement: formatMethod(now.addDays(+1)) });
-            result.push({ mustStartWith: `${baseKeyword}+`, keyword: `${baseKeyword}+1week`, replacement: formatMethod(now.addWeeks(+1)) });
-            result.push({ mustStartWith: `${baseKeyword}+`, keyword: `${baseKeyword}+1month`, replacement: formatMethod(now.addMonths(+1)) });
-            result.push({ mustStartWith: `${baseKeyword}+`, keyword: `${baseKeyword}+1quarter`, replacement: formatMethod(now.addQuarters(+1)) });
-            result.push({ mustStartWith: `${baseKeyword}+`, keyword: `${baseKeyword}+1year`, replacement: formatMethod(now.addYears(+1)) });
+            addKeywordReplacements(result, { mustStartWith: `${baseKeyword}+`, keyword: `${baseKeyword}+1second`, replacement: formatMethod(now.addSeconds(+1)) });
+            addKeywordReplacements(result, { mustStartWith: `${baseKeyword}+`, keyword: `${baseKeyword}+1minute`, replacement: formatMethod(now.addMinutes(+1)) });
+            addKeywordReplacements(result, { mustStartWith: `${baseKeyword}+`, keyword: `${baseKeyword}+1hour`, replacement: formatMethod(now.addHours(+1)) });
+            addKeywordReplacements(result, { mustStartWith: `${baseKeyword}+`, keyword: `${baseKeyword}+1day`, replacement: formatMethod(now.addDays(+1)) });
+            addKeywordReplacements(result, { mustStartWith: `${baseKeyword}+`, keyword: `${baseKeyword}+1week`, replacement: formatMethod(now.addWeeks(+1)) });
+            addKeywordReplacements(result, { mustStartWith: `${baseKeyword}+`, keyword: `${baseKeyword}+1month`, replacement: formatMethod(now.addMonths(+1)) });
+            addKeywordReplacements(result, { mustStartWith: `${baseKeyword}+`, keyword: `${baseKeyword}+1quarter`, replacement: formatMethod(now.addQuarters(+1)) });
+            addKeywordReplacements(result, { mustStartWith: `${baseKeyword}+`, keyword: `${baseKeyword}+1year`, replacement: formatMethod(now.addYears(+1)) });
 
             for (let index = 2; index < 100; index++) {
-                result.push({ mustStartWith: `${baseKeyword}-${index}`, keyword: `${baseKeyword}-${index}second`, replacement: formatMethod(now.addSeconds(-index)) });
-                result.push({ mustStartWith: `${baseKeyword}-${index}`, keyword: `${baseKeyword}-${index}minute`, replacement: formatMethod(now.addMinutes(-index)) });
-                result.push({ mustStartWith: `${baseKeyword}-${index}`, keyword: `${baseKeyword}-${index}hour`, replacement: formatMethod(now.addHours(-index)) });
-                result.push({ mustStartWith: `${baseKeyword}-${index}`, keyword: `${baseKeyword}-${index}day`, replacement: formatMethod(now.addDays(-index)) });
-                result.push({ mustStartWith: `${baseKeyword}-${index}`, keyword: `${baseKeyword}-${index}week`, replacement: formatMethod(now.addWeeks(-index)) });
-                result.push({ mustStartWith: `${baseKeyword}-${index}`, keyword: `${baseKeyword}-${index}month`, replacement: formatMethod(now.addMonths(-index)) });
-                result.push({ mustStartWith: `${baseKeyword}-${index}`, keyword: `${baseKeyword}-${index}quarter`, replacement: formatMethod(now.addQuarters(-index)) });
-                result.push({ mustStartWith: `${baseKeyword}-${index}`, keyword: `${baseKeyword}-${index}year`, replacement: formatMethod(now.addYears(-index)) });
+                addKeywordReplacements(result, { mustStartWith: `${baseKeyword}-${index}`, keyword: `${baseKeyword}-${index}second`, replacement: formatMethod(now.addSeconds(-index)) });
+                addKeywordReplacements(result, { mustStartWith: `${baseKeyword}-${index}`, keyword: `${baseKeyword}-${index}minute`, replacement: formatMethod(now.addMinutes(-index)) });
+                addKeywordReplacements(result, { mustStartWith: `${baseKeyword}-${index}`, keyword: `${baseKeyword}-${index}hour`, replacement: formatMethod(now.addHours(-index)) });
+                addKeywordReplacements(result, { mustStartWith: `${baseKeyword}-${index}`, keyword: `${baseKeyword}-${index}day`, replacement: formatMethod(now.addDays(-index)) });
+                addKeywordReplacements(result, { mustStartWith: `${baseKeyword}-${index}`, keyword: `${baseKeyword}-${index}week`, replacement: formatMethod(now.addWeeks(-index)) });
+                addKeywordReplacements(result, { mustStartWith: `${baseKeyword}-${index}`, keyword: `${baseKeyword}-${index}month`, replacement: formatMethod(now.addMonths(-index)) });
+                addKeywordReplacements(result, { mustStartWith: `${baseKeyword}-${index}`, keyword: `${baseKeyword}-${index}quarter`, replacement: formatMethod(now.addQuarters(-index)) });
+                addKeywordReplacements(result, { mustStartWith: `${baseKeyword}-${index}`, keyword: `${baseKeyword}-${index}year`, replacement: formatMethod(now.addYears(-index)) });
             }
             for (let index = 2; index < 100; index++) {
-                result.push({ mustStartWith: `${baseKeyword}+${index}`, keyword: `${baseKeyword}+${index}second`, replacement: formatMethod(now.addSeconds(+index)) });
-                result.push({ mustStartWith: `${baseKeyword}+${index}`, keyword: `${baseKeyword}+${index}minute`, replacement: formatMethod(now.addMinutes(+index)) });
-                result.push({ mustStartWith: `${baseKeyword}+${index}`, keyword: `${baseKeyword}+${index}hour`, replacement: formatMethod(now.addHours(+index)) });
-                result.push({ mustStartWith: `${baseKeyword}+${index}`, keyword: `${baseKeyword}+${index}day`, replacement: formatMethod(now.addDays(+index)) });
-                result.push({ mustStartWith: `${baseKeyword}+${index}`, keyword: `${baseKeyword}+${index}week`, replacement: formatMethod(now.addWeeks(+index)) });
-                result.push({ mustStartWith: `${baseKeyword}+${index}`, keyword: `${baseKeyword}+${index}month`, replacement: formatMethod(now.addMonths(+index)) });
-                result.push({ mustStartWith: `${baseKeyword}+${index}`, keyword: `${baseKeyword}+${index}quarter`, replacement: formatMethod(now.addQuarters(+index)) });
-                result.push({ mustStartWith: `${baseKeyword}+${index}`, keyword: `${baseKeyword}+${index}year`, replacement: formatMethod(now.addYears(+index)) });
+                addKeywordReplacements(result, { mustStartWith: `${baseKeyword}+${index}`, keyword: `${baseKeyword}+${index}second`, replacement: formatMethod(now.addSeconds(+index)) });
+                addKeywordReplacements(result, { mustStartWith: `${baseKeyword}+${index}`, keyword: `${baseKeyword}+${index}minute`, replacement: formatMethod(now.addMinutes(+index)) });
+                addKeywordReplacements(result, { mustStartWith: `${baseKeyword}+${index}`, keyword: `${baseKeyword}+${index}hour`, replacement: formatMethod(now.addHours(+index)) });
+                addKeywordReplacements(result, { mustStartWith: `${baseKeyword}+${index}`, keyword: `${baseKeyword}+${index}day`, replacement: formatMethod(now.addDays(+index)) });
+                addKeywordReplacements(result, { mustStartWith: `${baseKeyword}+${index}`, keyword: `${baseKeyword}+${index}week`, replacement: formatMethod(now.addWeeks(+index)) });
+                addKeywordReplacements(result, { mustStartWith: `${baseKeyword}+${index}`, keyword: `${baseKeyword}+${index}month`, replacement: formatMethod(now.addMonths(+index)) });
+                addKeywordReplacements(result, { mustStartWith: `${baseKeyword}+${index}`, keyword: `${baseKeyword}+${index}quarter`, replacement: formatMethod(now.addQuarters(+index)) });
+                addKeywordReplacements(result, { mustStartWith: `${baseKeyword}+${index}`, keyword: `${baseKeyword}+${index}year`, replacement: formatMethod(now.addYears(+index)) });
             }
+        }
+        function createFuzzyRegex(query) {
+          const pattern = query
+            .split('')
+            .map(char => char.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')) // Escape each char individually
+            .join('.*');
+
+          return new RegExp(pattern, 'i');
         }
 
         let selectedIndex = 0;
@@ -1052,9 +1060,10 @@
             if(target === masterInput){
                all = all.filter(k => k.replacement.split(/\r\n|\r|\n/).length <= 1);
             }
-            
+
+            const regex = createFuzzyRegex(query);
             currentMatches = all
-                .filter(k => k.keyword.toLowerCase().startsWith(query))
+                .filter(k => regex.test(k.keyword.toLowerCase()))
                 .sort((a, b) => a.keyword.localeCompare(b.keyword))
                 .map(k => ({ code: k.keyword, value: k.replacement }));
 
