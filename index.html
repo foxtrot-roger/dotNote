@@ -482,13 +482,7 @@
     </div>
 </div>
 
-    <div id="intellisense" class="intellisense-popup" style="display: none; top: auto; bottom: 60px; left: 20px;"><div class="suggestion-item " onclick="applySuggestion('..today', '2026-05-09')">
-                <strong>..today</strong><br><small>2026-05-09</small>
-            </div><div class="suggestion-item " onclick="applySuggestion('..tomorrow', '2026-05-10')">
-                <strong>..tomorrow</strong><br><small>2026-05-10</small>
-            </div><div class="suggestion-item active" onclick="applySuggestion('..todo', '2026-05-09 [TODO] :')">
-                <strong>..todo</strong><br><small>2026-05-09 [TODO] :</small>
-            </div></div>
+    <div id="intellisense" class="intellisense-popup" style="display: none; top: auto; bottom: 60px; left: 20px;"></div>
 
     <script>
         const DB_NAME = 'QuickNotesDB';
@@ -1053,8 +1047,12 @@
         const popup = document.getElementById('intellisense');
 
         async function showSuggestions(target, query) {
-            const all = await getAllShortcodes(query);
+            let all = await getAllShortcodes(query);
 
+            if(target === masterInput){
+               all = all.filter(k => k.replacement.split(/\r\n|\r|\n/).length <= 1);
+            }
+            
             currentMatches = all
                 .filter(k => k.keyword.toLowerCase().startsWith(query))
                 .sort((a, b) => a.keyword.localeCompare(b.keyword))
