@@ -932,112 +932,102 @@
             return result;
         }
 
-        async function getStaticShortcodes() {
+        async function getStaticShortcodes(query) {
             const now = new Date();
-            const getPart = (options) => new Intl.DateTimeFormat('en-GB', options).format(now);
-
-            // Helper to format as yyyy-MM-dd
-            const formatYMD = (date) => date.toISOString().split('T')[0];
-
-            // Helper to shift days
-            const addDays = (days) => {
-                const d = new Date(now);
-                d.setDate(now.getDate() + days);
-                return formatYMD(d);
-            };
-
-            const addHours = (hours) => {
-                const d = new Date(now);
-                d.setHours(now.getHours() + hours);
-                const datePart = d.toISOString().split('T')[0];
-                const timePart = `${String(d.getHours()).padStart(2, '0')}:${String(d.getMinutes()).padStart(2, '0')}`;
-                return `${datePart} ${timePart}`;
-            };
-
-            // Helper for finding specific days of the week (0=Sun, 1=Mon, etc.)
-            const getRelativeDay = (dayIndex, isNext) => {
-                const d = new Date(now);
-                let diff = dayIndex - d.getDay();
-                if (isNext && diff <= 0) diff += 7;
-                if (!isNext && diff >= 0) diff -= 7;
-                d.setDate(d.getDate() + diff);
-                return formatYMD(d);
-            };
-
-            // Helper for finding specific months
-            const getRelativeMonth = (monthIndex, isNext, yearOffset = 0) => {
-                const d = new Date(now.getFullYear() + yearOffset, monthIndex, 1);
-                // If we need the "previous" or "next" instance of a month relative to today
-                if (yearOffset === 0) {
-                    const currentMonth = now.getMonth();
-                    if (isNext && monthIndex <= currentMonth) d.setFullYear(d.getFullYear() + 1);
-                    if (!isNext && monthIndex >= currentMonth) d.setFullYear(d.getFullYear() - 1);
-                }
-                return formatYMD(d);
-            };
-
             const result = [];
-            result.push({ keyword: "..now", replacement: `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')} ${String(now.getHours()).padStart(2, '0')}:${String(now.getMinutes()).padStart(2, '0')}` });
-            result.push({ keyword: "..time", replacement: `${String(now.getHours()).padStart(2, '0')}:${String(now.getMinutes()).padStart(2, '0')}` });
-            result.push({ keyword: "..date", replacement: formatYMD(now) });
-            result.push({ keyword: "..wd", replacement: getPart({ weekday: 'long' }) });
-            result.push({ keyword: "..mm", replacement: getPart({ month: 'long' }) });
-            result.push({ keyword: "..yy", replacement: String(now.getFullYear()).slice(-2) });
-            result.push({ keyword: "..yyyy", replacement: String(now.getFullYear()) });
-            result.push({ keyword: "..dd", replacement: String(now.getDate()).padStart(2, '0') });
 
-            result.push({ keyword: "..today", replacement: formatYMD(now) });
-            result.push({ keyword: "..yesterday", replacement: addDays(-1) });
-            result.push({ keyword: "..tomorrow", replacement: addDays(1) });
+            result.push({ keyword: "..today", replacement: now.formatYMD() });
+            result.push({ keyword: "..yesterday", replacement: now.addDays(-1).formatYMD() });
+            result.push({ keyword: "..tomorrow", replacement: now.addDays(1).formatYMD() });
 
-            ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'].forEach((day, i) => {
-                result.push({ keyword: `..l${day}`, replacement: getRelativeDay(i, false) });
-                result.push({ keyword: `..n${day}`, replacement: getRelativeDay(i, true) });
-            });
-
-                // Months (Previous, Next, and specific Year shifts)
-            ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'].forEach((mon, i) => {
-                result.push({ keyword: `..l${mon}`, replacement: getRelativeMonth(i, false) });
-                result.push({ keyword: `..n${mon}`, replacement: getRelativeMonth(i, true) });
-                result.push({ keyword: `..ly${mon}`, replacement: getRelativeMonth(i, false, -1) });
-                result.push({ keyword: `..ny${mon}`, replacement: getRelativeMonth(i, true, 1) });
-            });
-
-            // Year shifts
-            result.push({ keyword: "..ly", replacement: formatYMD(new Date(now.getFullYear() - 1, now.getMonth(), now.getDate())) });
-            result.push({ keyword: "..ny", replacement: formatYMD(new Date(now.getFullYear() + 1, now.getMonth(), now.getDate())) });
-
-            Array.from({ length: 31 }, (_, i) => i + 1).forEach((num, i) => {
-                result.push({ keyword: `d-${num}`, replacement: addDays(-num) });
-                result.push({ keyword: `d+${num}`, replacement: addDays(num) });
-            });
-
-            Array.from({ length: 31 }, (_, i) => i + 1).forEach((num, i) => {
-                result.push({ keyword: `h-${num}`, replacement: addHours(-num) });
-                result.push({ keyword: `h+${num}`, replacement: addHours(num) });
-            });
+            generateDateKeywords(result, now, "..now", x => x.formatYMDHM());
+            generateDateKeywords(result, now, "..time", x => x.formatHM());
+            generateDateKeywords(result, now, "..date", x => x.formatYMD());
+            generateDateKeywords(result, now, "..week", x => x.formatYW());
+            generateDateKeywords(result, now, "..month", x => x.formatYM());
+            generateDateKeywords(result, now, "..quarter", x => x.formatYQ());
+            generateDateKeywords(result, now, "..year", x => x.formatY());
+            
+            generateDateKeywords(result, now.startOfDay(), "..sod", x => x.formatYMDHM());
+            generateDateKeywords(result, now.endOfDay(), "..eod", x => x.formatYMDHM());
+            
+            generateDateKeywords(result, now.startOfWeek(), "..sow", x => x.formatYMD());
+            generateDateKeywords(result, now.endOfWeek(), "..eow", x => x.formatYMD());
+            generateDateKeywords(result, now.startOfWorkWeek(), "..soww", x => x.formatYMD());
+            generateDateKeywords(result, now.endOfWorkWeek(), "..eoww", x => x.formatYMD());
 
             return result;
         }
         
-        async function getAllShortcodes() {
-            const staticCodes = await getStaticShortcodes();
+        async function getAllShortcodes(query) {
+            const staticCodes = await getStaticShortcodes(query);
             const dynamic = await getDynamicShortcodes();
 
-            const sortedStaticCodes = staticCodes.sort((a, b) => b.keyword.length - a.keyword.length);
+            const dictionary = staticCodes.reduce((acc, item) => {
+              acc[item.keyword] = item.replacement;
+              return acc;
+            }, {});
             // inject static codes into dynamic codes, eg. "..park [PARK ..now]" -> "..park [PARK 2024-06-01 14:30]"
             for (const index in dynamic) {
                 let item = dynamic[index];
                 let value = item.replacement;
-                // sort static codes by length desc to avoid partial replacements, eg. "..yyyy" before "..yy"
-                for (const staticCode of sortedStaticCodes) {
-                    value = value.replaceAll(staticCode.keyword, staticCode.replacement);
-                }
+                value = value.replace(/\.\.[^\s]+/g, token => {
+                    if (token in dictionary) {
+                        return dictionary[token];
+                    }
+                    return token;
+                });
+
                 item.replacement = value;
             }
 
-            const allNodes = staticCodes.concat(dynamic);
+            const visibleDateCodes = staticCodes.filter(k => !k.mustStartWith || query.startsWith(k.mustStartWith))
+
+            const allNodes = visibleDateCodes.concat(dynamic);
             return allNodes.sort((a, b) => b.keyword.length - a.keyword.length);
+        }
+
+        function generateDateKeywords(result, now, baseKeyword, formatMethod) {
+            result.push({ keyword: baseKeyword, replacement: formatMethod(now) });
+
+            result.push({ mustStartWith: baseKeyword, keyword: `${baseKeyword}-1second`, replacement: formatMethod(now.addSeconds(-1)) });
+            result.push({ mustStartWith: baseKeyword, keyword: `${baseKeyword}-1minute`, replacement: formatMethod(now.addMinutes(-1)) });
+            result.push({ mustStartWith: baseKeyword, keyword: `${baseKeyword}-1hour`, replacement: formatMethod(now.addHours(-1)) });
+            result.push({ mustStartWith: baseKeyword, keyword: `${baseKeyword}-1day`, replacement: formatMethod(now.addDays(-1)) });
+            result.push({ mustStartWith: baseKeyword, keyword: `${baseKeyword}-1week`, replacement: formatMethod(now.addWeeks(-1)) });
+            result.push({ mustStartWith: baseKeyword, keyword: `${baseKeyword}-1month`, replacement: formatMethod(now.addMonths(-1)) });
+            result.push({ mustStartWith: baseKeyword, keyword: `${baseKeyword}-1quarter`, replacement: formatMethod(now.addQuarters(-1)) });
+            result.push({ mustStartWith: baseKeyword, keyword: `${baseKeyword}-1year`, replacement: formatMethod(now.addYears(-1)) });
+
+            result.push({ mustStartWith: baseKeyword, keyword: `${baseKeyword}+1second`, replacement: formatMethod(now.addSeconds(+1)) });
+            result.push({ mustStartWith: baseKeyword, keyword: `${baseKeyword}+1minute`, replacement: formatMethod(now.addMinutes(+1)) });
+            result.push({ mustStartWith: baseKeyword, keyword: `${baseKeyword}+1hour`, replacement: formatMethod(now.addHours(+1)) });
+            result.push({ mustStartWith: baseKeyword, keyword: `${baseKeyword}+1day`, replacement: formatMethod(now.addDays(+1)) });
+            result.push({ mustStartWith: baseKeyword, keyword: `${baseKeyword}+1week`, replacement: formatMethod(now.addWeeks(+1)) });
+            result.push({ mustStartWith: baseKeyword, keyword: `${baseKeyword}+1month`, replacement: formatMethod(now.addMonths(+1)) });
+            result.push({ mustStartWith: baseKeyword, keyword: `${baseKeyword}+1quarter`, replacement: formatMethod(now.addQuarters(+1)) });
+            result.push({ mustStartWith: baseKeyword, keyword: `${baseKeyword}+1year`, replacement: formatMethod(now.addYears(+1)) });
+            
+            for (let index = 2; index < 100; index++) {
+                result.push({ mustStartWith: `${baseKeyword}-${index}`, keyword: `${baseKeyword}-${index}second`, replacement: formatMethod(now.addSeconds(-index)) });
+                result.push({ mustStartWith: `${baseKeyword}-${index}`, keyword: `${baseKeyword}-${index}minute`, replacement: formatMethod(now.addMinutes(-index)) });
+                result.push({ mustStartWith: `${baseKeyword}-${index}`, keyword: `${baseKeyword}-${index}hour`, replacement: formatMethod(now.addHours(-index)) });
+                result.push({ mustStartWith: `${baseKeyword}-${index}`, keyword: `${baseKeyword}-${index}day`, replacement: formatMethod(now.addDays(-index)) });
+                result.push({ mustStartWith: `${baseKeyword}-${index}`, keyword: `${baseKeyword}-${index}week`, replacement: formatMethod(now.addWeeks(-index)) });
+                result.push({ mustStartWith: `${baseKeyword}-${index}`, keyword: `${baseKeyword}-${index}month`, replacement: formatMethod(now.addMonths(-index)) });
+                result.push({ mustStartWith: `${baseKeyword}-${index}`, keyword: `${baseKeyword}-${index}quarter`, replacement: formatMethod(now.addQuarters(-index)) });
+                result.push({ mustStartWith: `${baseKeyword}-${index}`, keyword: `${baseKeyword}-${index}year`, replacement: formatMethod(now.addYears(-index)) });
+            }
+            for (let index = 2; index < 100; index++) {
+                result.push({ mustStartWith: `${baseKeyword}+${index}`, keyword: `${baseKeyword}+${index}second`, replacement: formatMethod(now.addSeconds(+index)) });
+                result.push({ mustStartWith: `${baseKeyword}+${index}`, keyword: `${baseKeyword}+${index}minute`, replacement: formatMethod(now.addMinutes(+index)) });
+                result.push({ mustStartWith: `${baseKeyword}+${index}`, keyword: `${baseKeyword}+${index}hour`, replacement: formatMethod(now.addHours(+index)) });
+                result.push({ mustStartWith: `${baseKeyword}+${index}`, keyword: `${baseKeyword}+${index}day`, replacement: formatMethod(now.addDays(+index)) });
+                result.push({ mustStartWith: `${baseKeyword}+${index}`, keyword: `${baseKeyword}+${index}week`, replacement: formatMethod(now.addWeeks(+index)) });
+                result.push({ mustStartWith: `${baseKeyword}+${index}`, keyword: `${baseKeyword}+${index}month`, replacement: formatMethod(now.addMonths(+index)) });
+                result.push({ mustStartWith: `${baseKeyword}+${index}`, keyword: `${baseKeyword}+${index}quarter`, replacement: formatMethod(now.addQuarters(+index)) });
+                result.push({ mustStartWith: `${baseKeyword}+${index}`, keyword: `${baseKeyword}+${index}year`, replacement: formatMethod(now.addYears(+index)) });
+            }
         }
 
         let selectedIndex = 0;
@@ -1046,7 +1036,7 @@
         const popup = document.getElementById('intellisense');
 
         async function showSuggestions(target, query) {
-            const all = await getAllShortcodes();
+            const all = await getAllShortcodes(query);
 
             currentMatches = all
                 .filter(k => k.keyword.toLowerCase().startsWith(query))
@@ -1150,6 +1140,314 @@
             });
         }
 
+// --- Years ---
+Date.prototype.addYears = function(years) {
+	var date = new Date(this.valueOf());
+	date.setFullYear(date.getFullYear() + years);
+	return date;
+};
+
+
+// --- Quarters (3 Months) ---
+Date.prototype.addQuarters = function(quarters) {
+	var date = new Date(this.valueOf());
+	date.setMonth(date.getMonth() + (quarters * 3));
+	return date;
+};
+
+
+// --- Months ---
+Date.prototype.addMonths = function(months) {
+	var date = new Date(this.valueOf());
+	date.setMonth(date.getMonth() + months);
+	return date;
+};
+
+
+// --- Weeks (7 Days) ---
+Date.prototype.addWeeks = function(weeks) {
+	var date = new Date(this.valueOf());
+	date.setDate(date.getDate() + (weeks * 7));
+	return date;
+};
+
+
+// --- Days ---
+Date.prototype.addDays = function(days) {
+	var date = new Date(this.valueOf());
+	date.setDate(date.getDate() + days);
+	return date;
+};
+
+
+// --- Hours ---
+Date.prototype.addHours = function(hours) {
+	var date = new Date(this.valueOf());
+	date.setHours(date.getHours() + hours);
+	return date;
+};
+
+
+// --- Minutes ---
+Date.prototype.addMinutes = function(minutes) {
+	var date = new Date(this.valueOf());
+	date.setMinutes(date.getMinutes() + minutes);
+	return date;
+};
+
+
+// --- Seconds ---
+Date.prototype.addSeconds = function(seconds) {
+	var date = new Date(this.valueOf());
+	date.setSeconds(date.getSeconds() + seconds);
+	return date;
+};
+
+/**
+ * Helper to return a new Date instance based on the current one
+ * to avoid mutating the original object.
+ */
+
+// --- SECOND ---
+Date.prototype.startOfSecond = function() {
+  const d = new Date(this);
+  d.setMilliseconds(0);
+  return d;
+};
+
+Date.prototype.endOfSecond = function() {
+  const d = new Date(this);
+  d.setMilliseconds(999);
+  return d;
+};
+
+// --- MINUTE ---
+Date.prototype.startOfMinute = function() {
+  const d = new Date(this);
+  d.setSeconds(0, 0);
+  return d;
+};
+
+Date.prototype.endOfMinute = function() {
+  const d = new Date(this);
+  d.setSeconds(59, 999);
+  return d;
+};
+
+// --- HOUR ---
+Date.prototype.startOfHour = function() {
+  const d = new Date(this);
+  d.setMinutes(0, 0, 0);
+  return d;
+};
+
+Date.prototype.endOfHour = function() {
+  const d = new Date(this);
+  d.setMinutes(59, 59, 999);
+  return d;
+};
+
+// --- DAY ---
+Date.prototype.startOfDay = function() {
+  const d = new Date(this);
+  d.setHours(0, 0, 0, 0);
+  return d;
+};
+
+Date.prototype.endOfDay = function() {
+  const d = new Date(this);
+  d.setHours(23, 59, 59, 999);
+  return d;
+};
+
+// --- WEEK (Sunday Start) ---
+Date.prototype.startOfWeek = function() {
+  const d = this.startOfDay();
+  const day = d.getDay();
+  d.setDate(d.getDate() - day);
+  return d;
+};
+
+Date.prototype.endOfWeek = function() {
+  const d = this.startOfWeek();
+  d.setDate(d.getDate() + 6);
+  d.setHours(23, 59, 59, 999);
+  return d;
+};
+
+// --- WORK WEEK (Monday - Friday) ---
+Date.prototype.startOfWorkWeek = function() {
+  const d = this.startOfDay();
+  const day = d.getDay();
+  const diff = (day === 0 ? -6 : 1) - day; // Adjust to previous Monday
+  d.setDate(d.getDate() + diff);
+  return d;
+};
+
+Date.prototype.endOfWorkWeek = function() {
+  const d = this.startOfWorkWeek();
+  d.setDate(d.getDate() + 4); // Friday
+  d.setHours(23, 59, 59, 999);
+  return d;
+};
+
+// --- MONTH ---
+Date.prototype.startOfMonth = function() {
+  const d = new Date(this.getFullYear(), this.getMonth(), 1, 0, 0, 0, 0);
+  return d;
+};
+
+Date.prototype.endOfMonth = function() {
+  const d = new Date(this.getFullYear(), this.getMonth() + 1, 0, 23, 59, 59, 999);
+  return d;
+};
+
+// --- QUARTER ---
+Date.prototype.startOfQuarter = function() {
+  const quarterMonth = Math.floor(this.getMonth() / 3) * 3;
+  return new Date(this.getFullYear(), quarterMonth, 1, 0, 0, 0, 0);
+};
+
+Date.prototype.endOfQuarter = function() {
+  const quarterMonth = Math.floor(this.getMonth() / 3) * 3 + 2;
+  return new Date(this.getFullYear(), quarterMonth + 1, 0, 23, 59, 59, 999);
+};
+
+// --- YEAR ---
+Date.prototype.startOfYear = function() {
+  return new Date(this.getFullYear(), 0, 1, 0, 0, 0, 0);
+};
+
+Date.prototype.endOfYear = function() {
+  return new Date(this.getFullYear(), 11, 31, 23, 59, 59, 999);
+};
+
+
+
+/**
+ * Returns the next occurrence of a specific weekday.
+ * @param {number} dayOfWeek - The target day (0 for Sunday, 1 for Monday, etc.)
+ * @param {boolean} includeToday - If true, and today is the target day, returns today.
+ */
+Date.prototype.nextWeekDay = function(dayOfWeek, includeToday = false) {
+	var date = new Date(this.valueOf());
+	var day = date.getDay();
+	var diff = dayOfWeek - day;
+
+
+	if (diff < 0 || (diff === 0 && !includeToday)) {
+		diff += 7;
+	}
+
+
+	date.setDate(date.getDate() + diff);
+	return date;
+};
+
+
+/**
+ * Returns the previous occurrence of a specific weekday.
+ * @param {number} dayOfWeek - The target day (0 for Sunday, 1 for Monday, etc.)
+ * @param {boolean} includeToday - If true, and today is the target day, returns today.
+ */
+Date.prototype.prevWeekDay = function(dayOfWeek, includeToday = false) {
+	var date = new Date(this.valueOf());
+	var day = date.getDay();
+	var diff = day - dayOfWeek;
+
+
+	if (diff < 0 || (diff === 0 && !includeToday)) {
+		diff += 7;
+	}
+
+
+	date.setDate(date.getDate() - diff);
+	return date;
+};
+
+
+// Helper to ensure leading zeros
+Date.prototype._pad = function(num) {
+	return num < 10 ? '0' + num : num;
+};
+
+
+Date.prototype.formatY = function() {
+	return this.getFullYear().toString();
+};
+
+// YMD: 2023-10-25
+Date.prototype.formatYMD = function(separator = '-') {
+	return this.getFullYear() + separator + 
+		this._pad(this.getMonth() + 1) + separator + 
+		this._pad(this.getDate());
+};
+
+
+// YMDHM: 2023-10-25 14:30
+Date.prototype.formatYMDHM = function(dateSep = '-', timeSep = ':') {
+	return this.formatYMD(dateSep) + ' ' + 
+		this._pad(this.getHours()) + timeSep + 
+		this._pad(this.getMinutes());
+};
+
+
+// YQ: 2023-Q4
+Date.prototype.formatYQ = function() {
+	var quarter = Math.floor(this.getMonth() / 3) + 1;
+	return this.getFullYear() + '-Q' + quarter;
+};
+
+
+// YM: 2023-10
+Date.prototype.formatYM = function(separator = '-') {
+	return this.getFullYear() + separator + 
+		this._pad(this.getMonth() + 1);
+};
+
+
+/**
+ * YW: 2026-W19
+ * Returns the Year and the ISO week number.
+ */
+Date.prototype.formatYW = function(separator = '-') {
+	var date = new Date(this.getTime());
+	
+	// ISO week date strategy:
+	// 1. Set to Thursday of the current week
+	date.setDate(date.getDate() + 4 - (date.getDay() || 7));
+	
+	// 2. Get the first day of the year
+	var yearStart = new Date(date.getFullYear(), 0, 1);
+	
+	// 3. Calculate full weeks between yearStart and the current Thursday
+	var weekNo = Math.ceil((((date - yearStart) / 86400000) + 1) / 7);
+	
+	return date.getFullYear() + separator + 'W' + this._pad(weekNo);
+};
+
+
+// YMW (Year-Month-Week Number of the month): 2023-10-W4
+Date.prototype.formatYMW = function(separator = '-') {
+	var day = this.getDate();
+	var weekNum = Math.ceil(day / 7);
+	return this.formatYM(separator) + separator + 'W' + weekNum;
+};
+
+
+// HM: 14:30
+Date.prototype.formatHM = function(separator = ':') {
+	return this._pad(this.getHours()) + separator + 
+	    this._pad(this.getMinutes());
+};
+
+
+// HMS: 14:30:05
+Date.prototype.formatHMS = function(separator = ':') {
+	return this.formatHM(separator) + separator + 
+		this._pad(this.getSeconds());
+};
+        
         initDB().then(() => render(true));
     </script>
 
