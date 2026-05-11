@@ -949,6 +949,10 @@
             generateDateKeywords(result, now.startOfWorkWeek(), "..startOfWorkWeek", x => x.formatYMD());
             generateDateKeywords(result, now.endOfWorkWeek(), "..endOfWorkWeek", x => x.formatYMD());
             
+            // ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"].forEach((dayName, index) => {
+            //     generateDateKeywords(result, now.prevWeekDay(index), `..${dayName}<`, x => x.formatYMD());
+            //     generateDateKeywords(result, now.nextWeekDay(index), `..${dayName}>`, x => x.formatYMD());
+            // });
 
             return result;
         }
@@ -1061,9 +1065,8 @@
                all = all.filter(k => k.replacement.split(/\r\n|\r|\n/).length <= 1);
             }
 
-            const regex = createFuzzyRegex(query);
             currentMatches = all
-                .filter(k => regex.test(k.keyword.toLowerCase()))
+                .filter(k => k.keyword.toLowerCase().startsWith(query.toLowerCase()))
                 .sort((a, b) => a.keyword.localeCompare(b.keyword))
                 .map(k => ({ code: k.keyword, value: k.replacement }));
 
