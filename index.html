@@ -1005,7 +1005,7 @@
             if(match.length >= 1) sign = match[1];
             
             let number = 1;
-            if(match.length >= 2) number = match[2];
+            if(match.length >= 2) number = parseInt(match[2]);
 
             addSuggestion(result, search, `${baseKeyword}${sign}${number}second`, formatMethod(now.addSeconds(number)));
             addSuggestion(result, search, `${baseKeyword}${sign}${number}minute`, formatMethod(now.addMinutes(number)));
