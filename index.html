@@ -935,10 +935,10 @@
             
             const now = new Date();
             const result = [];
-            
-            addKeywordReplacements(result, { keyword: "..today", replacement: now.formatYMD() });
-            addKeywordReplacements(result, { keyword: "..yesterday", replacement: now.addDays(-1).formatYMD() });
-            addKeywordReplacements(result, { keyword: "..tomorrow", replacement: now.addDays(1).formatYMD() });
+
+            addSuggestion(result, search, "..today", now.formatYMD());
+            addSuggestion(result, search, "..yesterday", now.addDays(-1).formatYMD());
+            addSuggestion(result, search, "..tomorrow", now.addDays(1).formatYMD());
 
             getSuggestionFor(result, search, now, "..now", x => x.formatYMDHM());
             getSuggestionFor(result, search, now, "..time", x => x.formatHM());
@@ -956,34 +956,42 @@
 
             return result;
         }
+        function addSuggestion(result, search, baseKeyword, replacement) {
+            if(!baseKeyword.toLowerCase().startsWith(search.toLowerCase())) {
+                return;
+            }
+
+            if(replacement && baseKeyword.toLowerCase() === search.toLowerCase()) {
+                result.push({ keyword: baseKeyword, replacement: replacement });
+            }
+            else {
+                result.push({ keyword: baseKeyword, replacement: baseKeyword });
+            }
+        }
         function getSuggestionFor(result, search, now, baseKeyword, formatMethod) {
 
-            // ..date
-            if(baseKeyword.toLowerCase().startsWith(search.toLowerCase())) {
-                // add ..date ..date
-                // add ..date yyyy-MM-dd
-                addKeywordReplacements(result, { keyword: baseKeyword, replacement: formatMethod(now) });
-                result.push({ excludeExactMatch: true, keyword: `${baseKeyword} - duration`, replacement: `${baseKeyword}-` });
-                result.push({ excludeExactMatch: true, keyword : `${baseKeyword} + duration`, replacement: `${baseKeyword}+` });
-            }
+            addSuggestion(result, search, `${baseKeyword}`, formatMethod(now));
+            addSuggestion(result, search, `${baseKeyword}-`);
+            addSuggestion(result, search, `${baseKeyword}+`);
 
-            let sign = '+';
-            let number = 1;
             const pattern = `^${baseKeyword}([+-])([0-9]+)`;
             const match = search.match(pattern);
-            if(match) {
-                if(match.length >= 1) sign = match[1];
-                if(match.length >= 2) number = match[2];
-            }
+            if(!match) return;
+            
+            let sign = '+';
+            if(match.length >= 1) sign = match[1];
+            
+            let number = 1;
+            if(match.length >= 2) number = match[2];
 
-            addKeywordReplacements(result, { keyword: `${baseKeyword}${sign}${number}second`, replacement: formatMethod(now.addSeconds(number)) });
-            addKeywordReplacements(result, { keyword: `${baseKeyword}${sign}${number}minute`, replacement: formatMethod(now.addMinutes(number)) });
-            addKeywordReplacements(result, { keyword: `${baseKeyword}${sign}${number}hour`, replacement: formatMethod(now.addHours(number)) });
-            addKeywordReplacements(result, { keyword: `${baseKeyword}${sign}${number}day`, replacement: formatMethod(now.addDays(number)) });
-            addKeywordReplacements(result, { keyword: `${baseKeyword}${sign}${number}week`, replacement: formatMethod(now.addWeeks(number)) });
-            addKeywordReplacements(result, { keyword: `${baseKeyword}${sign}${number}month`, replacement: formatMethod(now.addMonths(number)) });
-            addKeywordReplacements(result, { keyword: `${baseKeyword}${sign}${number}quarter`, replacement: formatMethod(now.addQuarters(number)) });
-            addKeywordReplacements(result, { keyword: `${baseKeyword}${sign}${number}year`, replacement: formatMethod(now.addYears(number)) });                    
+            addSuggestion(result, search, `${baseKeyword}${sign}${number}second`, formatMethod(now.addSeconds(number)));
+            addSuggestion(result, search, `${baseKeyword}${sign}${number}minute`, formatMethod(now.addMinutes(number)));
+            addSuggestion(result, search, `${baseKeyword}${sign}${number}hour`, formatMethod(now.addHours(number)));
+            addSuggestion(result, search, `${baseKeyword}${sign}${number}day`, formatMethod(now.addDays(number)));
+            addSuggestion(result, search, `${baseKeyword}${sign}${number}week`, formatMethod(now.addWeeks(number)));
+            addSuggestion(result, search, `${baseKeyword}${sign}${number}month`, formatMethod(now.addMonths(number)));
+            addSuggestion(result, search, `${baseKeyword}${sign}${number}quarter`, formatMethod(now.addQuarters(number)));
+            addSuggestion(result, search, `${baseKeyword}${sign}${number}year`, formatMethod(now.addYears(number)));                    
         }
        
 
@@ -991,15 +999,15 @@
         async function getDynamicShortcodes(query) { return await getUserSuggestions(query, 0, query.length); }
         
         async function getAllShortcodes(query) {
-            const staticCodes = await getStaticShortcodes(query);
-            const dynamic = await getDynamicShortcodes(query);
+            const systemSuggestions = await getStaticShortcodes(query);
+            const userSuggestions = await getDynamicShortcodes(query);
 
-            // pass 1 get tokens
-            const toResolve = dynamic.flatMap(item => 
+            // pass 1 : get system stenos to inject into user suggestions
+            const toResolve = userSuggestions.flatMap(item => 
                 [...item.replacement.matchAll(/\.\.[^\s]+/g)].map(match => match[0])
             );
 
-            // pass 2 resove tokens
+            // pass 2 : compute system stenos present in user stenos
             const resolved = {};
             for(const index in toResolve) {
                 const item = toResolve[index];
@@ -1011,9 +1019,9 @@
                     resolved[item] = systemReplacement.replacement;
             }
 
-            // pass 3 inject token
-            for (const index in dynamic) {
-                let item = dynamic[index];
+            // pass 3 : replace system stenos with their values
+            for (const index in userSuggestions) {
+                let item = userSuggestions[index];
                 let value = item.replacement;
                 value = value.replace(/\.\.[^\s]+/g, token => {
                     if (token in resolved) {
@@ -1025,7 +1033,7 @@
                 item.replacement = value;
             }
 
-            const visibleDateCodes = staticCodes.filter(k => {
+            const visibleSystemSuggestions = systemSuggestions.filter(k => {
                 if(k.mustStartWith && !query.toLowerCase().startsWith(k.mustStartWith.toLowerCase()))
                     return false;
 
@@ -1035,16 +1043,13 @@
                         && k.keyword.toLowerCase() != query.toLowerCase() 
                 }
 
+                return true;
                 return k.keyword.toLowerCase() == query.toLowerCase();
             });
 
-            const allNodes = visibleDateCodes.concat(dynamic);
-            return allNodes.sort((a, b) => b.keyword.length - a.keyword.length);
+            return visibleSystemSuggestions.concat(userSuggestions)
+                .sort((a, b) => b.keyword.length - a.keyword.length);
         }
-        function addKeywordReplacements(array, item) {
-            array.push(item);
-            array.push({ excludeExactMatch: true, mustStartWith: item.mustStartWith, keyword: item.keyword, replacement: item.keyword })
-        };
     
         function createFuzzyRegex(query) {
           const pattern = query
@@ -1068,7 +1073,6 @@
             }
 
             currentMatches = all
-                .filter(k => k.keyword.toLowerCase().startsWith(query.toLowerCase()))
                 .sort((a, b) => a.keyword.localeCompare(b.keyword))
                 .map(k => ({ code: k.keyword, value: k.replacement }));
 
