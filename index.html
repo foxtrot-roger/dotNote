@@ -556,22 +556,38 @@
         }
 
         async function render(shouldScroll = false) {
-            const notes = await getAllNotes();
             const query = masterInput.value.toLowerCase();
+            const notes = await getAllNotes();
 
-            const queryPrefix = query !== "" && query.length > 1 && supportedPrefixes.find(p => query.toLowerCase().startsWith(p)) !== undefined;
-            notesList.innerHTML = notes
-                .filter(note => {
-                    var isMatch = note.text.toLowerCase().includes(query);
-                    if (!isMatch)
-                        return false;
+            let filteredNotes =[];
+            let systemNotes = [];
+            const isStenoEditMode = query && query.match(/^[\s]*\.\..*/g);
+            const isStenoSearchMode = query && query.match(/^[\s]*\.\?/g);
+            if(isStenoEditMode){
+                filteredNotes = notes
+                    .filter(note => note.text.toLowerCase().startsWith(query.toLowerCase()))
+                    .sort((a, b) => a.text.localeCompare(b.text));
+            }
+            else if(isStenoSearchMode) {
+                const escapeRegExp = (string) => string.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+                const words = query.substring(2).split(/\s+/).map(escapeRegExp);
+                const regex = new RegExp(words.join('.*'), 'gis');
 
-                    const activePrefix = supportedPrefixes.find(p => note.text.toLowerCase().startsWith(p)) !== undefined;
-                    if (activePrefix && !queryPrefix)
-                        return false;
+                filteredNotes = notes
+                    .filter(note => note.text.startsWith(".."))
+                    .filter(note => regex.test(note.text));
+            }
+            else {
+                const escapeRegExp = (string) => string.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+                const words = query.split(/\s+/).map(escapeRegExp);
+                const regex = new RegExp(words.join('.*'), 'gis');
 
-                    return true;
-                })
+                filteredNotes = notes
+                    .filter(note => !note.text.startsWith(".."))
+                    .filter(note => regex.test(note.text));
+            }
+
+            notesList.innerHTML = filteredNotes
                 .map(note => `
 <div class="note-item" data-id="${note.id}">
     <textarea 
@@ -586,9 +602,9 @@
         <button class="btn-action" title="Delete" style="color:var(--danger)" onclick="deleteNote(${note.id})">✕</button>
     </div>
 </div>
-        `).join('');
+                `).join('');
 
-        document.querySelectorAll('.note-content').forEach(el => autoExpand(el));
+            document.querySelectorAll('.note-content').forEach(el => autoExpand(el));
             if (shouldScroll || query === "") {
                 notesList.scrollTop = notesList.scrollHeight;
             }
@@ -842,17 +858,13 @@
             }
         }
 
-        function handleNoteKeydown(e) {
-
-            if (popup.style.display === 'block') {
-                if (e.key === 'ArrowDown') { e.preventDefault(); selectedIndex = (selectedIndex + 1) % currentMatches.length; renderPopup(e.target); return; }
-                if (e.key === 'ArrowUp') { e.preventDefault(); selectedIndex = (selectedIndex - 1 + currentMatches.length) % currentMatches.length; renderPopup(e.target); return; }
-                if (e.key === 'Enter' || e.key === 'Tab') { e.preventDefault(); applySuggestion(currentMatches[selectedIndex].code, currentMatches[selectedIndex].value); return; }
-                if (e.key === 'Escape') { hidePopup(); return; }
-            }
-            else if (e.key === 'Escape') { masterInput.focus(); }
-
+        function handleNavigation(e) {
             const target = e.target;
+
+            if (e.key === 'Escape') {
+                masterInput.focus(); 
+                return;
+            }
             const goUp = (e.key === 'ArrowUp' && e.ctrlKey);
             const goDown = (e.key === 'ArrowDown' && e.ctrlKey);
 
@@ -871,6 +883,17 @@
                     masterInput.focus();
                 }
             }
+        }
+        function handleNoteKeydown(e) {
+
+            if (popup.style.display === 'block') {
+                if (e.key === 'ArrowDown') { e.preventDefault(); selectedIndex = (selectedIndex + 1) % currentMatches.length; renderPopup(e.target); return; }
+                if (e.key === 'ArrowUp') { e.preventDefault(); selectedIndex = (selectedIndex - 1 + currentMatches.length) % currentMatches.length; renderPopup(e.target); return; }
+                if (e.key === 'Enter' || e.key === 'Tab') { e.preventDefault(); applySuggestion(currentMatches[selectedIndex].code, currentMatches[selectedIndex].value); return; }
+                if (e.key === 'Escape') { hidePopup(); return; }
+            }
+
+            handleNavigation(e);
 
             updateSelectionFromNote(e);
 
