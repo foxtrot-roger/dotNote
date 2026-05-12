@@ -612,11 +612,7 @@
 
         function autoExpand(el) {
             el.style.height = 'auto';
-
-            if(el.value.split('\n').length > 1)
-                el.style.height = el.scrollHeight + 'px';
-            else
-                el.style.height = '1rem';
+            el.style.height = el.scrollHeight + 'px';
         }
 
         async function addNote(text) {
