@@ -572,27 +572,21 @@
 
             let systemNotes = [];
 
-            const regex = /^[\s]*\.\./g;
-            const match = regex.exec(query);
-            const endPosition = match ? match[0].length : undefined;
-            if (endPosition) {
-                const escapeRegExp = (string) => string.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
-                const words = query.substring(2).split(/\s+/).map(escapeRegExp);
-                const regex = new RegExp(words.join('.*'), 'gis');
+            const modeRegex = /^[\s]*\.\./g;
+            const modeMatch = modeRegex.exec(query);
+            const modeEndPosition = modeMatch ? modeMatch[0].length : undefined;
 
-                filteredNotes = notes
-                    .filter(note => note.text.startsWith(".."))
-                    .filter(note => regex.test(note.text));
-            }
-            else {
-                const escapeRegExp = (string) => string.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
-                const words = query.split(/\s+/).map(escapeRegExp);
-                const regex = new RegExp(words.join('.*'), 'gis');
+            if (modeEndPosition)
+                filteredNotes = notes.filter(note => note.text.startsWith(".."))
+            else
+                filteredNotes = notes.filter(note => !note.text.startsWith(".."))
 
-                filteredNotes = notes
-                    .filter(note => !note.text.startsWith(".."))
-                    .filter(note => regex.test(note.text));
-            }
+            const words = query.substring(2).split(/\s+/).map(escapeRegExp);
+            const regex = new RegExp(words.join('.*'), 'is');
+            filteredNotes = filteredNotes.filter(note => regex.test(note.text));
+        }
+        function escapeRegExp(string) {
+            return string.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
         }
         async function render(shouldScroll = false) {
             await filterNotes();
@@ -602,19 +596,19 @@
             notesList.innerHTML = filteredNotes
                 .map(note => `
 <div class="note-item" data-id="${note.id}">
-                <textarea
-                     class="note-content"
-                     spellcheck="false"
-                     onkeydown="handleNoteKeydown(event)"
-                     oninput="autoExpand(this); handleNoteInput(event)"
-                     onfocus="handleNoteFocus(event)"
-                     onblur="handleUpdate(${note.id}, this.value)">${note.text}</textarea>
-                <div class="actions">
-                    <button class="btn-action" title="Copy" onclick="copyToClipboard(this.parentElement.previousElementSibling.value)">📋</button>
-                    <button class="btn-action" title="Delete" style="color:var(--danger)" onclick="deleteNote(${note.id})">✕</button>
-                </div>
+                                                <textarea
+                                                     class="note-content"
+                                                     spellcheck="false"
+                                                     onkeydown="handleNoteKeydown(event)"
+                                                     oninput="autoExpand(this); handleNoteInput(event)"
+                                                     onfocus="handleNoteFocus(event)"
+                                                     onblur="handleUpdate(${note.id}, this.value)">${note.text}</textarea>
+                                                <div class="actions">
+                                                    <button class="btn-action" title="Copy" onclick="copyToClipboard(this.parentElement.previousElementSibling.value)">📋</button>
+                                                    <button class="btn-action" title="Delete" style="color:var(--danger)" onclick="deleteNote(${note.id})">✕</button>
+                                                </div>
 </div>
-                            `).join('');
+                                                            `).join('');
 
             document.querySelectorAll('.note-content').forEach(el => autoExpand(el));
             if (shouldScroll || masterInput.value === "") {
@@ -1110,8 +1104,8 @@
         function renderPopup(target) {
             popup.innerHTML = currentMatches.map((m, i) =>
                 `<div class="suggestion-item ${i === selectedIndex ? 'active' : ''}" onclick="applySuggestion('${m.code}', '${m.value}')">
-                                <strong>${m.code}</strong><br><small>${m.value.substring(0, 20)}</small>
-                            </div>`
+                                                                <strong>${m.code}</strong><br><small>${m.value.substring(0, 20)}</small>
+                                                            </div>`
             ).join('');
 
             popup.style.display = 'block';
