@@ -5,6 +5,9 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>dotNotes - type, find, expand.</title>
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital@0;1&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Quicksand:wght@400;500;600&display=swap" rel="stylesheet">
     <style>
         :root {
             --bg: #f8fafc;
@@ -14,10 +17,57 @@
             --hover: #f7fafc;
             --secondary-text: #718096;
             --danger: #e53e3e;
+            --note-bg: white;
+            --font-main: 'Consolas', 'Monaco', monospace;
+        }
+
+        body.theme-paper {
+            --bg: #FAF7F2; /* Warm Porcelain */
+            --text: #2B2018; /* Deep Ink Brown */
+            --accent: #9CB59B; /* Sage Green */
+            --border: #E7D6C4; /* Soft Linen */
+            --hover: #F1E6DA; /* Light Parchment */
+            --secondary-text: #8A7663; /* Earthy Brown */
+            --danger: #B36B6B; /* Muted Rose-Red */
+            --note-bg: #FFFDFB;
+            --font-main: 'Playfair Display', Georgia, serif;
+        }
+        body.theme-moss {
+            --bg: #F7F8FA; /* Off-white Cloud */
+            --text: #3B4250; /* Slate Grey */
+            --accent: #AFC7E2; /* Soft Sky Blue */
+            --border: rgba(255, 255, 255, 0.4); /* Translucent White */
+            --hover: rgba(255, 255, 255, 0.6); /* Glass Shine */
+            --secondary-text: #7A8292; /* Cool Grey */
+            --danger: #E57373; /* Pastel Red */
+            --note-bg: rgba(255, 255, 255, 0.7);
+            --font-main: 'Inter', sans-serif;
+        }
+        body.theme-black {
+            --bg: #16161A; /* Deep Charcoal */
+            --text: #E1E7EE; /* Mist White */
+            --accent: #26DE81; /* Moss Green */
+            --border: #24242B; /* Dark Slate */
+            --hover: #1C1C1E; /* Subtle Surface Highlight */
+            --secondary-text: #7A8292; /* Dimmed Grey */
+            --danger: #FF6B6B; /* Bright Coral */
+            --note-bg: #1C1C1E;
+            --font-main: 'Cascadia Code', 'Fira Code', monospace;
+        }
+        body.theme-warm {
+            --bg: #FFF6EB; /* Light Sand */
+            --text: #43464B; /* Graphite */
+            --accent: #CFA5A5; /* Dusty Rose */
+            --border: #E7D6C4; /* Toasted Tan */
+            --hover: #F9EBDD; /* Warm Sandstone */
+            --secondary-text: #8E847B; /* Muted Clay */
+            --danger: #D66D67; /* Terracotta */
+            --note-bg: #FFFFFF;
+            --font-main: 'Quicksand', 'Nunito', system-ui, sans-serif;
         }
 
         body {
-            font-family: 'Segoe UI', system-ui, sans-serif;
+            font-family: var(--font-main);
             background: var(--bg);
             color: var(--text);
             margin: 0;
@@ -92,7 +142,7 @@
 
         .input-wrapper {
             padding: 10px 20px;
-            background: white;
+            background: var(--bg);
             border-top: 1px solid var(--border);
             box-sizing: border-box;
             flex-shrink: 0;
@@ -101,14 +151,15 @@
         #masterInput {
             width: 100%;
             padding: 12px 16px;
-            font-family: 'Consolas', 'Monaco', monospace;
+            font-family: var(--font-main);
             font-size: 1rem;
             border: 1px solid var(--border);
             border-radius: 8px;
             outline: none;
             transition: border-color 0.2s;
             box-sizing: border-box;
-            background: white;
+            color: var(--text);
+            background: var(--note-bg);
         }
 
             #masterInput:focus {
@@ -116,11 +167,12 @@
             }
 
         .note-item {
-            background: white;
+            color: var(--text);
+            background: var(--note-bg);
             border: 1px solid var(--border);
             border-radius: 6px;
             display: flex;
-            font-family: 'Consolas', 'Monaco', monospace;
+            font-family: var(--font-main);
             align-items: flex-start;
             width: 100%;
             /* Full width */
@@ -129,7 +181,6 @@
         }
 
             .note-item:focus-within {
-                background: white;
                 border-color: var(--accent);
                 box-shadow: 0 4px 12px rgba(49, 130, 206, 0.15);
                 transform: translateY(-1px);
@@ -141,8 +192,9 @@
             flex-grow: 1;
             outline: none;
             border: none;
-            background: transparent;
-            font-family: 'Consolas', 'Monaco', monospace;
+            color: var(--text);
+            background: var(--note-bg);
+            font-family: var(--font-main);
             width: 100%;
             resize: none;
             overflow: hidden;
@@ -173,6 +225,7 @@
             }
 
         .shortcut-row {
+            color: var(--secondary-text);
             display: flex;
             justify-content: space-between;
             font-size: 0.8rem;
@@ -282,6 +335,7 @@
             padding: 8px 12px;
             cursor: pointer;
             font-size: 0.85rem;
+            color: var(--secondary-text);
             border-bottom: 1px solid var(--border);
         }
 
@@ -348,7 +402,7 @@
             border-radius: 6px;
             cursor: pointer;
             font-size: 0.9rem;
-            color: var(--text);
+            color: var(--secondary-text);
             transition: background 0.2s;
         }
 
@@ -387,60 +441,28 @@
         <div class="shortcut-row"><span>Current Date/Time</span> <span class="kbd">..now</span></div>
         <div class="shortcut-row"><span>Current Time</span> <span class="kbd">..time</span></div>
         <div class="shortcut-row"><span>Current Date</span> <span class="kbd">..date</span></div>
+        <div class="shortcut-row"><span>Current Week</span> <span class="kbd">..week</span></div>
+        <div class="shortcut-row"><span>Current Month</span> <span class="kbd">..month</span></div>
+        <div class="shortcut-row"><span>Current Quarter</span> <span class="kbd">..quarter</span></div>
+        <div class="shortcut-row"><span>Current Year</span> <span class="kbd">..year</span></div>
+
+        <h4 style="margin: 15px 0 10px 0; color:var(--accent)">Relative Date &amp; Time</h4>
+        <p style="font-size: 0.7rem; color: var(--secondary-text); margin-top: 10px;">
+            All support the format <br /> <b>..keyword[+-]{number}{unit}</b>
+        </p>
         <div class="shortcut-row"><span>Today (Date)</span> <span class="kbd">..today</span></div>
         <div class="shortcut-row"><span>Yesterday (Date)</span> <span class="kbd">..yesterday</span></div>
         <div class="shortcut-row"><span>Tomorrow (Date)</span> <span class="kbd">..tomorrow</span></div>
-        <div class="shortcut-row"><span>Current Weekday</span> <span class="kbd">..wd</span></div>
-        <div class="shortcut-row"><span>Current Day</span> <span class="kbd">..dd</span></div>
-        <div class="shortcut-row"><span>Current Month</span> <span class="kbd">..mm</span></div>
-        <div class="shortcut-row"><span>Current year</span> <span class="kbd">..yyyy</span></div>
+        <div class="shortcut-row"><span>Start of day (Date/Time)</span> <span class="kbd">..startOfDay</span></div>
+        <div class="shortcut-row"><span>End of day (Date/Time)</span> <span class="kbd">..endOfDay</span></div>
+        <div class="shortcut-row"><span>Start of week (Date)</span> <span class="kbd">..startOfWeek</span></div>
+        <div class="shortcut-row"><span>End of week (Date)</span> <span class="kbd">..endOfWeek</span></div>
+        <div class="shortcut-row"><span>Start of work week (Date)</span> <span class="kbd">..startOfWeek</span></div>
+        <div class="shortcut-row"><span>End of work week (Date)</span> <span class="kbd">..endOfWeek</span></div>
 
-        <h4 style="margin: 15px 0 10px 0; color:var(--accent)">Relative Date &amp; Time</h4>
-        <div class="shortcut-row">
-            <span>Relative Days</span>
-            <span><span class="kbd">d-31</span> → <span class="kbd">d+31</span></span>
-        </div>
-        <div class="shortcut-row">
-            <span>Relative Hours</span>
-            <span><span class="kbd">h-72</span> → <span class="kbd">h+72</span></span>
-        </div>
-
-        <div class="shortcut-row">
-            <span>Last Week Days</span>
-            <span><span class="kbd">..lMon</span> → <span class="kbd">..lSun</span></span>
-        </div>
-        <div class="shortcut-row">
-            <span>Next Week Days</span>
-            <span><span class="kbd">..nMon</span> → <span class="kbd">..nSun</span></span>
-        </div>
-
-        <div class="shortcut-row">
-            <span>Last Months</span>
-            <span><span class="kbd">..lJan</span> → <span class="kbd">..lDec</span></span>
-        </div>
-        <div class="shortcut-row">
-            <span>Next Months</span>
-            <span><span class="kbd">..nJan</span> → <span class="kbd">..nDec</span></span>
-        </div>
-
-        <div class="shortcut-row">
-            <span>Last/Next Year</span>
-            <span><span class="kbd">..ly</span> / <span class="kbd">..ny</span></span>
-        </div>
-
-        <div class="shortcut-row">
-            <span>Last Year Months</span>
-            <span><span class="kbd">..lyJan</span> → <span class="kbd">..lyDec</span></span>
-        </div>
-        <div class="shortcut-row">
-            <span>Next Year Months</span>
-            <span><span class="kbd">..nyJan</span> → <span class="kbd">..nyDec</span></span>
-        </div>
-
-        <div class="shortcut-row"><span>Custom Snippets</span> <span class="kbd">..name</span></div>
-
+        <h4 style="margin: 15px 0 10px 0; color:var(--accent)">User stenos</h4>
         <p style="font-size: 0.7rem; color: var(--secondary-text); margin-top: 10px;">
-            Define snippets by starting a note with <b>..name [content]</b>
+            Define stenos by starting a note with <b>..name [content]</b>
         </p>
 
         <button class="btn-util" style="width:100%; margin-top:10px" onclick="toggleShortcuts()">Close</button>
@@ -473,6 +495,17 @@
 
             <input type="file" id="loadFile" style="display:none" accept=".json" onchange="loadJSON(event)">
             <input type="file" id="importFile" style="display:none" accept=".json" onchange="importJSON(event)">
+
+            <div class="menu-section">
+                <h4>Themes</h4>
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px;">
+                    <button class="menu-btn" onclick="setTheme('default')">Sandstone</button>
+                    <button class="menu-btn" onclick="setTheme('paper')">Paper</button>
+                    <button class="menu-btn" onclick="setTheme('moss')">Moss</button>
+                    <button class="menu-btn" onclick="setTheme('black')">Black</button>
+                    <button class="menu-btn" onclick="setTheme('warm')">Warm</button>
+                </div>
+            </div>
         </div>
 
         <div class="toolbar">
@@ -564,6 +597,27 @@
                 transaction.oncomplete = () => resolve();
             });
         }
+
+        function setTheme(themeName) {
+            // Remove all existing theme classes
+            document.body.classList.remove('theme-paper', 'theme-moss', 'theme-black', 'theme-warm');
+
+            // Add the selected one
+            if (themeName !== 'default') {
+                document.body.classList.add('theme-' + themeName);
+            }
+
+            // Save preference
+            localStorage.setItem('dotNotes-theme', themeName);
+        }
+
+        // Load saved theme on startup
+        window.addEventListener('DOMContentLoaded', () => {
+            const savedTheme = localStorage.getItem('dotNotes-theme');
+            if (savedTheme) {
+                setTheme(savedTheme);
+            }
+        });
 
         let filteredNotes = [];
         async function filterNotes() {
