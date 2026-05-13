@@ -788,12 +788,9 @@
 
         masterInput.addEventListener('input', async (e) => {
             const val = masterInput.value;
-            const lastWord = val.split(' ').pop();//.toLowerCase();
+            const lastWord = val.split(' ').pop();
 
-            // Check if the current word starts with any of our defined prefixes
-            const activePrefix = supportedPrefixes.find(p => lastWord.startsWith(p)) !== undefined;
-
-            if (activePrefix) {
+            if (lastWord) {
                 showSuggestions(e.target, lastWord);
             } else {
                 hidePopup();
@@ -918,9 +915,11 @@
             const words = textBefore.split(/\s/);
             const lastWord = words[words.length - 1];
 
-            const activePrefix = supportedPrefixes.find(p => lastWord.startsWith(p)) !== undefined;
-
-            showSuggestions(input, lastWord);
+            if (lastWord) {
+                showSuggestions(e.target, lastWord);
+            } else {
+                hidePopup();
+            }
         }
 
         function handleSmartCopy(e) {
