@@ -575,9 +575,11 @@
             const modeEndPosition = modeMatch ? modeMatch[0].length : undefined;
 
             if (modeEndPosition)
-                filteredNotes = notes.filter(note => note.text.startsWith(".."))
+                filteredNotes = notes
+                    .filter(note => note.text.startsWith(".."))
+                    .sort((a, b) => a.text.localeCompare(b.text));
             else
-                filteredNotes = notes.filter(note => !note.text.startsWith(".."))
+                filteredNotes = notes.filter(note => !note.text.startsWith(".."));
 
             const words = query.split(/\s+/).map(escapeRegExp);
             const regex = new RegExp(words.join('.*'), 'is');
