@@ -579,7 +579,7 @@
             else
                 filteredNotes = notes.filter(note => !note.text.startsWith(".."))
 
-            const words = query.split(/\s+/).map(x=> escapeRegExp(x));
+            const words = query.split(/\s+/).map(escapeRegExp);
             const regex = new RegExp(words.join('.*'), 'is');
             filteredNotes = filteredNotes.filter(note => regex.test(note.text));
         }
