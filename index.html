@@ -605,19 +605,19 @@
             notesList.innerHTML = filteredNotes
                 .map(note => `
 <div class="note-item" data-id="${note.id}">
-            <textarea
-                 class="note-content"
-                 spellcheck="false"
-                 onkeydown="handleNoteKeydown(event)"
-                 oninput="autoExpand(this); handleNoteInput(event)"
-                 onfocus="handleNoteFocus(event)"
-                 onblur="handleUpdate(${note.id}, this.value)">${note.text}</textarea>
-            <div class="actions">
-                <button class="btn-action" title="Copy" onclick="copyToClipboard(this.parentElement.previousElementSibling.value)">📋</button>
-                <button class="btn-action" title="Delete" style="color:var(--danger)" onclick="deleteNote(${note.id})">✕</button>
-            </div>
+                <textarea
+                     class="note-content"
+                     spellcheck="false"
+                     onkeydown="handleNoteKeydown(event)"
+                     oninput="autoExpand(this); handleNoteInput(event)"
+                     onfocus="handleNoteFocus(event)"
+                     onblur="handleUpdate(${note.id}, this.value)">${note.text}</textarea>
+                <div class="actions">
+                    <button class="btn-action" title="Copy" onclick="copyToClipboard(this.parentElement.previousElementSibling.value)">📋</button>
+                    <button class="btn-action" title="Delete" style="color:var(--danger)" onclick="deleteNote(${note.id})">✕</button>
+                </div>
 </div>
-                        `).join('');
+                            `).join('');
 
             document.querySelectorAll('.note-content').forEach(el => autoExpand(el));
             if (shouldScroll || query === "") {
@@ -1118,8 +1118,8 @@
         function renderPopup(target) {
             popup.innerHTML = currentMatches.map((m, i) =>
                 `<div class="suggestion-item ${i === selectedIndex ? 'active' : ''}" onclick="applySuggestion('${m.code}', '${m.value}')">
-                            <strong>${m.code}</strong><br><small>${m.value.substring(0, 20)}</small>
-                        </div>`
+                                <strong>${m.code}</strong><br><small>${m.value.substring(0, 20)}</small>
+                            </div>`
             ).join('');
 
             popup.style.display = 'block';
@@ -1141,13 +1141,24 @@
             const spaceBelow = viewHeight - (adjustedTop + hardcodedLineHeight);
 
             popup.style.bottom = 'auto';
-            popup.style.left = adjustedLeft + 'px';
 
             const willOverflowDown = spaceBelow < popupHeight + margin;
             if (willOverflowDown) {
                 popup.style.top = (rect.top + caret.top - popupHeight - margin) + 'px';
             } else {
                 popup.style.top = (rect.top + caret.top + hardcodedLineHeight) + 'px';
+            }
+
+            const popupWidth = popup.offsetWidth;
+            const viewWidth = window.visualViewport ? window.visualViewport.width : window.innerWidth;
+            const spaceRight = viewWidth - (adjustedLeft);
+
+            popup.style.left = adjustedLeft + 'px';
+            const willOverflowRight = spaceRight < popupWidth + margin;
+            if (willOverflowRight) {
+                popup.style.left = (rect.left + caret.left - popupWidth - margin) + 'px';
+            } else {
+                popup.style.left = (rect.left + caret.left) + 'px';
             }
 
             const activeItem = popup.querySelector('.active');
