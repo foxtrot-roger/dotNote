@@ -571,14 +571,11 @@
             const notes = await getAllNotes();
 
             let systemNotes = [];
-            const isStenoEditMode = query && query.match(/^[\s]*\.\..*/g);
-            const isStenoSearchMode = query && query.match(/^[\s]*\.\?/g);
-            if (isStenoEditMode) {
-                filteredNotes = notes
-                    .filter(note => note.text.toLowerCase().startsWith(query.toLowerCase()))
-                    .sort((a, b) => a.text.localeCompare(b.text));
-            }
-            else if (isStenoSearchMode) {
+
+            const regex = /^[\s]*\.\./g;
+            const match = regex.exec(query);
+            const endPosition = match ? match[0].length : undefined;
+            if (endPosition) {
                 const escapeRegExp = (string) => string.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
                 const words = query.substring(2).split(/\s+/).map(escapeRegExp);
                 const regex = new RegExp(words.join('.*'), 'gis');
