@@ -570,8 +570,6 @@
             const query = masterInput.value.toLowerCase();
             const notes = await getAllNotes();
 
-            let systemNotes = [];
-
             const modeRegex = /^[\s]*\.\./g;
             const modeMatch = modeRegex.exec(query);
             const modeEndPosition = modeMatch ? modeMatch[0].length : undefined;
@@ -581,7 +579,7 @@
             else
                 filteredNotes = notes.filter(note => !note.text.startsWith(".."))
 
-            const words = query.substring(2).split(/\s+/).map(escapeRegExp);
+            const words = query.split(/\s+/).map(x=> escapeRegExp(x));
             const regex = new RegExp(words.join('.*'), 'is');
             filteredNotes = filteredNotes.filter(note => regex.test(note.text));
         }
