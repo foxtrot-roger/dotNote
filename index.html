@@ -1243,6 +1243,10 @@
 
                 // Scroll the active element into view if it's the input
                 if (document.activeElement.id === 'masterInput') {
+                    if (popup.style.display == 'block') {
+                        renderPopup(document.activeElement);
+                    }
+
                     setTimeout(() => {
                         document.activeElement.scrollIntoView({ block: 'end' });
                     }, 50);
