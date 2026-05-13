@@ -555,11 +555,11 @@
             });
         }
 
-        async function render(shouldScroll = false) {
+        let filteredNotes = [];
+        async function filterNotes() {
             const query = masterInput.value.toLowerCase();
             const notes = await getAllNotes();
 
-            let filteredNotes =[];
             let systemNotes = [];
             const isStenoEditMode = query && query.match(/^[\s]*\.\..*/g);
             const isStenoSearchMode = query && query.match(/^[\s]*\.\?/g);
@@ -586,7 +586,12 @@
                     .filter(note => !note.text.startsWith(".."))
                     .filter(note => regex.test(note.text));
             }
-
+        }
+        async function render(shouldScroll = false) {
+            await filterNotes();
+            redrawNotes(shouldScroll);
+        }
+        function redrawNotes(shouldScroll = false) {
             notesList.innerHTML = filteredNotes
                 .map(note => `
 <div class="note-item" data-id="${note.id}">
@@ -901,7 +906,7 @@
             
             const textBefore = input.value.substring(0, pos);
             const words = textBefore.split(/\s/);
-            const lastWord = words[words.length - 1];//.toLowerCase();
+            const lastWord = words[words.length - 1];
 
             const activePrefix = supportedPrefixes.find(p => lastWord.startsWith(p)) !== undefined;
 
@@ -924,7 +929,7 @@
         }
 
         const supportedPrefixes = ['..', ',,', 'dd', 'd+', 'd-', 'M+', 'M-', 'y+', 'y-', 'h+', 'h-'];
-        async function getUserSuggestions(query, start, end) {
+        async function getUserSuggestions(query, start = 0, end = query.length) {
             const search = query.substring(start, end);
             const notes = await getAllNotes();
             const result = [];
@@ -949,7 +954,7 @@
 
             return result;
         }
-        async function getSystemSuggestions(query, start, end) {
+        async function getSystemSuggestions(query, start = 0, end = query.length) {
             const search = query.substring(start, end);
             
             const now = new Date();
@@ -1012,14 +1017,10 @@
             addSuggestion(result, search, `${baseKeyword}${sign}${number}quarter`, formatMethod(now.addQuarters(number)));
             addSuggestion(result, search, `${baseKeyword}${sign}${number}year`, formatMethod(now.addYears(number)));                    
         }
-       
-
-        async function getStaticShortcodes(query) { return await getSystemSuggestions(query, 0, query.length); }
-        async function getDynamicShortcodes(query) { return await getUserSuggestions(query, 0, query.length); }
         
-        async function getAllShortcodes(query) {
-            const systemSuggestions = await getStaticShortcodes(query);
-            const userSuggestions = await getDynamicShortcodes(query);
+        async function getAllSuggestions(query, start = 0, end = query.length) {
+            const systemSuggestions = await getSystemSuggestions(query, start, end);
+            const userSuggestions = await getUserSuggestions(query, start, end);
 
             // pass 1 : get system stenos to inject into user suggestions
             const toResolve = userSuggestions.flatMap(item => 
@@ -1032,7 +1033,7 @@
                 const item = toResolve[index];
                 if(item in resolved) continue;
                 
-                const matchingSuggestions = await getStaticShortcodes(item);
+                const matchingSuggestions = await getSystemSuggestions(item);
                 const systemReplacement = matchingSuggestions.find(x=> x.keyword == item);
                 if(systemReplacement)
                     resolved[item] = systemReplacement.replacement;
@@ -1085,7 +1086,7 @@
         const popup = document.getElementById('intellisense');
 
         async function showSuggestions(target, query) {
-            let all = await getAllShortcodes(query);
+            let all = await getAllSuggestions(query);
 
             if(target === masterInput){
                all = all.filter(k => k.replacement.split(/\r\n|\r|\n/).length <= 1);
