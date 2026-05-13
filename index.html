@@ -273,6 +273,9 @@
             z-index: 2000;
             min-width: 150px;
             overflow: hidden;
+            max-height: 250px;
+            overflow-y: auto;
+            overflow-x: hidden;
         }
 
         .suggestion-item {
@@ -1130,24 +1133,57 @@
                 popup.style.bottom = (window.innerHeight - rect.top + margin) + 'px';
                 popup.style.left = rect.left + 'px';
             } else {
-                // Position: Usually BELOW the note line you're typing on
-                // For textareas, the most reliable 'clean' look is attaching it
-                // to the bottom of the textarea or the specific line.
-                const spaceBelow = window.innerHeight - rect.bottom;
+                const caret = getCaretCoordinates(target, target.selectionEnd);
+
                 const popupHeight = popup.offsetHeight;
+                const hardcodedLineHeight = 20;
+                const spaceBelow = window.innerHeight - (rect.top + caret.top + hardcodedLineHeight);
 
                 popup.style.bottom = 'auto';
+                popup.style.left = (rect.left + caret.left) + 'px';
 
-                // if (spaceBelow < popupHeight + margin) {
-                //     // Flip to top if no room below
-                //     popup.style.top = (rect.top - popupHeight - margin) + 'px';
-                // } else {
-                //     popup.style.top = (rect.bottom + margin) + 'px';
-                // }
-                popup.style.top = (rect.bottom + margin) + 'px';
-
-                popup.style.left = rect.left + 'px';
+                const willOverflowDown = spaceBelow < popupHeight + margin;
+                if (willOverflowDown) {
+                    popup.style.top = (rect.top + caret.top - popupHeight - margin) + 'px';
+                } else {
+                    popup.style.top = (rect.top + caret.top + hardcodedLineHeight) + 'px';
+                }
             }
+
+            const activeItem = popup.querySelector('.active');
+            if (activeItem) {
+                activeItem.scrollIntoView({ block: 'nearest' });
+            }
+        }
+
+        function getCaretCoordinates(element, position) {
+            const { offsetLeft, offsetTop } = element;
+            const div = document.createElement('div');
+            const style = window.getComputedStyle(element);
+
+            // Copy essential styles to the mirror div
+            for (const prop of ['fontFamily', 'fontSize', 'fontWeight', 'padding', 'lineHeight', 'border', 'width']) {
+                div.style[prop] = style[prop];
+            }
+
+            div.style.position = 'absolute';
+            div.style.visibility = 'hidden';
+            div.style.whiteSpace = 'pre-wrap';
+            div.style.wordBreak = 'break-word';
+
+            // Fill with text up to cursor
+            div.textContent = element.value.substring(0, position);
+
+            // Add a marker for the caret
+            const span = document.createElement('span');
+            span.textContent = element.value.substring(position) || '.';
+            div.appendChild(span);
+
+            document.body.appendChild(div);
+            const { offsetLeft: spanLeft, offsetTop: spanTop } = span;
+            document.body.removeChild(div);
+
+            return { left: spanLeft, top: spanTop };
         }
 
         function applySuggestion(code, value) {
