@@ -1127,20 +1127,28 @@
             const rect = target.getBoundingClientRect();
             const margin = 5;
 
-            if (target.id === 'masterInput') {
-                // Position: Always ABOVE the search bar
-                popup.style.top = 'auto';
-                popup.style.bottom = (window.innerHeight - rect.top + margin) + 'px';
-                popup.style.left = rect.left + 'px';
-            } else {
-                const caret = getCaretCoordinates(target, target.selectionEnd);
+            const vOffsetTop = window.visualViewport ? window.visualViewport.offsetTop : 0;
+            const vOffsetLeft = window.visualViewport ? window.visualViewport.offsetLeft : 0;
 
-                const popupHeight = popup.offsetHeight;
+            if (target.id === 'masterInput') {
+                popup.style.top = 'auto';
+                const viewHeight = window.visualViewport ? window.visualViewport.height : window.innerHeight;
+
+                popup.style.bottom = (viewHeight - (rect.top - vOffsetTop) + margin) + 'px';
+                popup.style.left = (rect.left - vOffsetLeft) + 'px';
+            } else {
                 const hardcodedLineHeight = 20;
-                const spaceBelow = window.innerHeight - (rect.top + caret.top + hardcodedLineHeight);
+                const caret = getCaretCoordinates(target, target.selectionEnd);
+                const popupHeight = popup.offsetHeight;
+
+                const adjustedTop = rect.top - vOffsetTop + caret.top - target.scrollTop;
+                const adjustedLeft = rect.left - vOffsetLeft + caret.left;
+
+                const viewHeight = window.visualViewport ? window.visualViewport.height : window.innerHeight;
+                const spaceBelow = viewHeight - (adjustedTop + hardcodedLineHeight);
 
                 popup.style.bottom = 'auto';
-                popup.style.left = (rect.left + caret.left) + 'px';
+                popup.style.left = adjustedLeft + 'px';
 
                 const willOverflowDown = spaceBelow < popupHeight + margin;
                 if (willOverflowDown) {
