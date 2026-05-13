@@ -620,7 +620,7 @@
                             `).join('');
 
             document.querySelectorAll('.note-content').forEach(el => autoExpand(el));
-            if (shouldScroll || query === "") {
+            if (shouldScroll || masterInput.value === "") {
                 notesList.scrollTop = notesList.scrollHeight;
             }
         }
@@ -920,11 +920,7 @@
 
             const activePrefix = supportedPrefixes.find(p => lastWord.startsWith(p)) !== undefined;
 
-            if (activePrefix) {
-                showSuggestions(input, lastWord);
-            } else {
-                hidePopup();
-            }
+            showSuggestions(input, lastWord);
         }
 
         function handleSmartCopy(e) {
@@ -954,7 +950,7 @@
                 if (!isShortCode)
                     return;
 
-                const keyword = text.substring(0, endOfKeyword);
+                const keyword = text.substring(2, endOfKeyword);
                 if (!keyword.toLowerCase().startsWith(search.toLowerCase()))
                     return;
 
