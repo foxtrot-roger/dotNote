@@ -1,6 +1,7 @@
 <!DOCTYPE html>
-<html lang="en"><head>
-<meta http-equiv="content-type" content="text/html; charset=UTF-8">
+<html lang="en">
+<head>
+    <meta http-equiv="content-type" content="text/html; charset=UTF-8">
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>dotNotes - type, find, expand.</title>
@@ -56,11 +57,11 @@
             transition: all 0.2s;
         }
 
-        .btn-util:hover {
-            background: #fff;
-            color: var(--accent);
-            border-color: var(--accent);
-        }
+            .btn-util:hover {
+                background: #fff;
+                color: var(--accent);
+                border-color: var(--accent);
+            }
 
         #shortcutModal {
             display: none;
@@ -110,9 +111,9 @@
             background: white;
         }
 
-        #masterInput:focus {
-            border-color: var(--accent);
-        }
+            #masterInput:focus {
+                border-color: var(--accent);
+            }
 
         .note-item {
             background: white;
@@ -127,13 +128,13 @@
             padding: 10px;
         }
 
-        .note-item:focus-within {
-            background: white;
-            border-color: var(--accent);
-            box-shadow: 0 4px 12px rgba(49, 130, 206, 0.15);
-            transform: translateY(-1px);
-            transition: all 0.2s ease;
-        }
+            .note-item:focus-within {
+                background: white;
+                border-color: var(--accent);
+                box-shadow: 0 4px 12px rgba(49, 130, 206, 0.15);
+                transform: translateY(-1px);
+                transition: all 0.2s ease;
+            }
 
 
         .note-content {
@@ -167,9 +168,9 @@
             font-size: 0.85rem;
         }
 
-        .btn-action:hover {
-            color: var(--text);
-        }
+            .btn-action:hover {
+                color: var(--text);
+            }
 
         .shortcut-row {
             display: flex;
@@ -217,19 +218,19 @@
             overflow: hidden;
         }
 
-        /* Dropup Items */
-        .dropup-content div {
-            color: var(--text);
-            padding: 10px 14px;
-            font-size: 0.85rem;
-            cursor: pointer;
-            transition: background 0.2s;
-        }
+            /* Dropup Items */
+            .dropup-content div {
+                color: var(--text);
+                padding: 10px 14px;
+                font-size: 0.85rem;
+                cursor: pointer;
+                transition: background 0.2s;
+            }
 
-        .dropup-content div:hover {
-            background-color: var(--hover);
-            color: var(--accent);
-        }
+                .dropup-content div:hover {
+                    background-color: var(--hover);
+                    color: var(--accent);
+                }
 
         /* Show the menu */
         .show-dropup {
@@ -281,89 +282,95 @@
             border-bottom: 1px solid var(--border);
         }
 
-        .suggestion-item.active {
-            background: var(--accent);
-            color: white;
+            .suggestion-item.active {
+                background: var(--accent);
+                color: white;
+            }
+
+            .suggestion-item:last-child {
+                border-bottom: none;
+            }
+
+        /* Side Menu Drawer */
+        .side-menu {
+            position: fixed;
+            top: 0;
+            left: -280px; /* Hidden by default */
+            width: 280px;
+            height: 100%;
+            background: white;
+            box-shadow: 2px 0 10px rgba(0,0,0,0.1);
+            z-index: 1000;
+            transition: left 0.3s ease;
+            display: flex;
+            flex-direction: column;
+            padding: 20px;
+            box-sizing: border-box;
+            border-top-right-radius: 12px;
+            border-bottom-right-radius: 12px;
         }
 
-        .suggestion-item:last-child {
-            border-bottom: none;
+            .side-menu.open {
+                left: 0;
+            }
+
+        .menu-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid var(--border);
+            margin-bottom: 20px;
+            padding-bottom: 10px;
         }
 
-/* Side Menu Drawer */
-.side-menu {
-    position: fixed;
-    top: 0;
-    left: -280px; /* Hidden by default */
-    width: 280px;
-    height: 100%;
-    background: white;
-    box-shadow: 2px 0 10px rgba(0,0,0,0.1);
-    z-index: 1000;
-    transition: left 0.3s ease;
-    display: flex;
-    flex-direction: column;
-    padding: 20px;
-    box-sizing: border-box;
-    border-top-right-radius: 12px;
-    border-bottom-right-radius: 12px;
-}
+        .menu-section {
+            margin-bottom: 25px;
+        }
 
-.side-menu.open {
-    left: 0;
-}
+            .menu-section h4 {
+                color: var(--secondary-text);
+                font-size: 0.75rem;
+                text-transform: uppercase;
+                letter-spacing: 1px;
+                margin-bottom: 10px;
+            }
 
-.menu-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    border-bottom: 1px solid var(--border);
-    margin-bottom: 20px;
-    padding-bottom: 10px;
-}
+        .menu-btn {
+            display: block;
+            width: 100%;
+            text-align: left;
+            padding: 10px;
+            background: none;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 0.9rem;
+            color: var(--text);
+            transition: background 0.2s;
+        }
 
-.menu-section {
-    margin-bottom: 25px;
-}
+            .menu-btn:hover {
+                background: var(--hover);
+                color: var(--accent);
+            }
 
-.menu-section h4 {
-    color: var(--secondary-text);
-    font-size: 0.75rem;
-    text-transform: uppercase;
-    letter-spacing: 1px;
-    margin-bottom: 10px;
-}
+        /* Optional Backdrop when menu is open */
+        .menu-overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0,0,0,0.2);
+            z-index: 999;
+        }
 
-.menu-btn {
-    display: block;
-    width: 100%;
-    text-align: left;
-    padding: 10px;
-    background: none;
-    border: none;
-    border-radius: 6px;
-    cursor: pointer;
-    font-size: 0.9rem;
-    color: var(--text);
-    transition: background 0.2s;
-}
-
-.menu-btn:hover {
-    background: var(--hover);
-    color: var(--accent);
-}
-
-/* Optional Backdrop when menu is open */
-.menu-overlay {
-    display: none;
-    position: fixed;
-    top: 0; left: 0; right: 0; bottom: 0;
-    background: rgba(0,0,0,0.2);
-    z-index: 999;
-}
-.menu-overlay.show { display: block; }
+            .menu-overlay.show {
+                display: block;
+            }
     </style>
-<meta id="ConnectiveDocSignExtentionInstalled" name="ConnectiveDocSignExtentionInstalled" data-extension-version="1.0.5"><style>:is([id*='google_ads_iframe'],[id*='taboola-'],.taboolaHeight,.taboola-placeholder,#top-ad,#credential_picker_container,#credentials-picker-container,#credential_picker_iframe,[id*='google-one-tap-iframe'],#google-one-tap-popup-container,.google-one-tap__module,.google-one-tap-modal-div,#amp_floatingAdDiv,#ez-content-blocker-container) {display:none!important;min-height:0!important;height:0!important;}</style></head>
+</head>
 
 <body style="height: 870px;">
 
@@ -436,51 +443,51 @@
         <button class="btn-util" style="width:100%; margin-top:10px" onclick="toggleShortcuts()">Close</button>
     </div>
 
-<div class="container">
-    <div id="sideMenu" class="side-menu">
-        <div class="menu-header">
-            <h3>Menu</h3>
-            <button class="btn-action" onclick="toggleMenu()">✕</button>
-        </div>
-        
-        <div class="menu-section">
-            <h4>Download</h4>
-            <button class="menu-btn" onclick="downloadDotNote()">Standalone version</button>
+    <div class="container">
+        <div id="sideMenu" class="side-menu">
+            <div class="menu-header">
+                <h3>Menu</h3>
+                <button class="btn-action" onclick="toggleMenu()">✕</button>
+            </div>
+
+            <div class="menu-section">
+                <h4>Download</h4>
+                <button class="menu-btn" onclick="downloadDotNote()">Standalone version</button>
+            </div>
+
+            <div class="menu-section">
+                <h4>Export</h4>
+                <button class="menu-btn" onclick="exportJSON()">Everything</button>
+                <button class="menu-btn" onclick="exportNotesJSON()">Notes Only</button>
+                <button class="menu-btn" onclick="exportVocabularyJSON()">Vocabulary Only</button>
+            </div>
+
+            <div class="menu-section">
+                <h4>Import</h4>
+                <button class="menu-btn" onclick="document.getElementById('loadFile').click()">Load (Replace)</button>
+                <button class="menu-btn" onclick="document.getElementById('importFile').click()">Import (Merge)</button>
+            </div>
+
+            <input type="file" id="loadFile" style="display:none" accept=".json" onchange="loadJSON(event)">
+            <input type="file" id="importFile" style="display:none" accept=".json" onchange="importJSON(event)">
         </div>
 
-        <div class="menu-section">
-            <h4>Export</h4>
-            <button class="menu-btn" onclick="exportJSON()">Everything</button>
-            <button class="menu-btn" onclick="exportNotesJSON()">Notes Only</button>
-            <button class="menu-btn" onclick="exportVocabularyJSON()">Vocabulary Only</button>
-        </div>
-        
-        <div class="menu-section">
-            <h4>Import</h4>
-            <button class="menu-btn" onclick="document.getElementById('loadFile').click()">Load (Replace)</button>
-            <button class="menu-btn" onclick="document.getElementById('importFile').click()">Import (Merge)</button>
+        <div class="toolbar">
+            <button class="btn-util" onclick="toggleMenu()">☰ Menu</button>
+            <div style="flex-grow: 1;"></div>
+            <button class="btn-util" style="width:24px; height:24px; padding:0; border-radius:50%" onclick="toggleShortcuts()">?</button>
         </div>
 
-        <input type="file" id="loadFile" style="display:none" accept=".json" onchange="loadJSON(event)">
-        <input type="file" id="importFile" style="display:none" accept=".json" onchange="importJSON(event)">
+        <div id="notesList" class="notes-list"></div>
+
+        <div class="input-wrapper">
+            <div class="input-group">
+                <button class="btn-util" style="height: 42px; width: 42px;" onclick="triggerCommand()">..</button>
+                <input type="text" id="masterInput" placeholder="Find or create note..." autofocus="" autocomplete="off">
+                <button class="btn-util" style="height: 42px; width: 42px;" onclick="addNote(masterInput.value)">+</button>
+            </div>
+        </div>
     </div>
-
-    <div class="toolbar">
-        <button class="btn-util" onclick="toggleMenu()">☰ Menu</button>
-        <div style="flex-grow: 1;"></div>
-        <button class="btn-util" style="width:24px; height:24px; padding:0; border-radius:50%" onclick="toggleShortcuts()">?</button>
-    </div>
-
-    <div id="notesList" class="notes-list"></div>
-
-    <div class="input-wrapper">
-        <div class="input-group">
-            <button class="btn-util" style="height: 42px; width: 42px;" onclick="triggerCommand()">..</button>
-            <input type="text" id="masterInput" placeholder="Find or create note..." autofocus="" autocomplete="off">
-            <button class="btn-util" style="height: 42px; width: 42px;" onclick="addNote(masterInput.value)">+</button>
-        </div>
-    </div>
-</div>
 
     <div id="intellisense" class="intellisense-popup" style="display: none; top: auto; bottom: 60px; left: 20px;"></div>
 
@@ -563,12 +570,12 @@
             let systemNotes = [];
             const isStenoEditMode = query && query.match(/^[\s]*\.\..*/g);
             const isStenoSearchMode = query && query.match(/^[\s]*\.\?/g);
-            if(isStenoEditMode){
+            if (isStenoEditMode) {
                 filteredNotes = notes
                     .filter(note => note.text.toLowerCase().startsWith(query.toLowerCase()))
                     .sort((a, b) => a.text.localeCompare(b.text));
             }
-            else if(isStenoSearchMode) {
+            else if (isStenoSearchMode) {
                 const escapeRegExp = (string) => string.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
                 const words = query.substring(2).split(/\s+/).map(escapeRegExp);
                 const regex = new RegExp(words.join('.*'), 'gis');
@@ -595,19 +602,19 @@
             notesList.innerHTML = filteredNotes
                 .map(note => `
 <div class="note-item" data-id="${note.id}">
-    <textarea 
-         class="note-content" 
-         spellcheck="false"
-         onkeydown="handleNoteKeydown(event)"
-         oninput="autoExpand(this); handleNoteInput(event)"
-         onfocus="handleNoteFocus(event)"
-         onblur="handleUpdate(${note.id}, this.value)">${note.text}</textarea>
-    <div class="actions">
-        <button class="btn-action" title="Copy" onclick="copyToClipboard(this.parentElement.previousElementSibling.value)">📋</button>
-        <button class="btn-action" title="Delete" style="color:var(--danger)" onclick="deleteNote(${note.id})">✕</button>
-    </div>
+        <textarea
+             class="note-content"
+             spellcheck="false"
+             onkeydown="handleNoteKeydown(event)"
+             oninput="autoExpand(this); handleNoteInput(event)"
+             onfocus="handleNoteFocus(event)"
+             onblur="handleUpdate(${note.id}, this.value)">${note.text}</textarea>
+        <div class="actions">
+            <button class="btn-action" title="Copy" onclick="copyToClipboard(this.parentElement.previousElementSibling.value)">📋</button>
+            <button class="btn-action" title="Delete" style="color:var(--danger)" onclick="deleteNote(${note.id})">✕</button>
+        </div>
 </div>
-                `).join('');
+                    `).join('');
 
             document.querySelectorAll('.note-content').forEach(el => autoExpand(el));
             if (shouldScroll || query === "") {
@@ -645,7 +652,7 @@
         function toggleMenu() {
             const menu = document.getElementById('sideMenu');
             menu.classList.toggle('open');
-            
+
             // Optional: Close menu if user clicks outside
             if (menu.classList.contains('open')) {
                 const overlay = document.createElement('div');
@@ -791,8 +798,8 @@
             render();
         });
 
-        masterInput.addEventListener('focus', e=>{
-            if(activeTarget != masterInput) {
+        masterInput.addEventListener('focus', e => {
+            if (activeTarget != masterInput) {
                 hidePopup();
             }
             updateSelectionFromSearch(e);
@@ -842,9 +849,9 @@
 
         let lastFocusedElement;
         let pos = 0;
-        function updateSelectionFromNote(e){
+        function updateSelectionFromNote(e) {
             lastFocusedElement = e.target;
-            
+
             const sel = window.getSelection();
             if (!sel.rangeCount) return;
 
@@ -854,7 +861,7 @@
 
         function handleNoteFocus(e) {
             lastFocusedElement = e.target;
-            if(activeTarget != e.target) {
+            if (activeTarget != e.target) {
                 hidePopup();
             }
         }
@@ -863,7 +870,7 @@
             const target = e.target;
 
             if (e.key === 'Escape') {
-                masterInput.focus(); 
+                masterInput.focus();
                 return;
             }
             const goUp = (e.key === 'ArrowUp' && e.ctrlKey);
@@ -900,10 +907,10 @@
 
         }
 
-         async function handleNoteInput(e) {
+        async function handleNoteInput(e) {
             const input = e.target;
             pos = input.selectionEnd;
-            
+
             const textBefore = input.value.substring(0, pos);
             const words = textBefore.split(/\s/);
             const lastWord = words[words.length - 1];
@@ -937,15 +944,15 @@
             notes.forEach(note => {
                 const text = note.text;
                 const endOfKeyword = text.indexOf(' ');
-                if(endOfKeyword < 0)
+                if (endOfKeyword < 0)
                     return;
 
                 const isShortCode = supportedPrefixes.some(p => text.startsWith(p));
-                if(!isShortCode)
+                if (!isShortCode)
                     return;
 
                 const keyword = text.substring(0, endOfKeyword);
-                if(!keyword.toLowerCase().startsWith(search.toLowerCase()))
+                if (!keyword.toLowerCase().startsWith(search.toLowerCase()))
                     return;
 
                 const replacement = text.substring(endOfKeyword + 1);
@@ -956,7 +963,7 @@
         }
         async function getSystemSuggestions(query, start = 0, end = query.length) {
             const search = query.substring(start, end);
-            
+
             const now = new Date();
             const result = [];
 
@@ -981,11 +988,11 @@
             return result;
         }
         function addSuggestion(result, search, baseKeyword, replacement) {
-            if(!baseKeyword.toLowerCase().startsWith(search.toLowerCase())) {
+            if (!baseKeyword.toLowerCase().startsWith(search.toLowerCase())) {
                 return;
             }
 
-            if(replacement && baseKeyword.toLowerCase() === search.toLowerCase()) {
+            if (replacement && baseKeyword.toLowerCase() === search.toLowerCase()) {
                 result.push({ keyword: baseKeyword, replacement: replacement });
             }
             else {
@@ -1000,13 +1007,13 @@
 
             const pattern = `^${baseKeyword}([+-])([0-9]+)`;
             const match = search.match(pattern);
-            if(!match) return;
-            
+            if (!match) return;
+
             let sign = '+';
-            if(match.length >= 1) sign = match[1];
-            
+            if (match.length >= 1) sign = match[1];
+
             let number = 1;
-            if(match.length >= 2) number = parseInt(match[2]);
+            if (match.length >= 2) number = parseInt(match[2]);
 
             addSuggestion(result, search, `${baseKeyword}${sign}${number}second`, formatMethod(now.addSeconds(number)));
             addSuggestion(result, search, `${baseKeyword}${sign}${number}minute`, formatMethod(now.addMinutes(number)));
@@ -1015,27 +1022,27 @@
             addSuggestion(result, search, `${baseKeyword}${sign}${number}week`, formatMethod(now.addWeeks(number)));
             addSuggestion(result, search, `${baseKeyword}${sign}${number}month`, formatMethod(now.addMonths(number)));
             addSuggestion(result, search, `${baseKeyword}${sign}${number}quarter`, formatMethod(now.addQuarters(number)));
-            addSuggestion(result, search, `${baseKeyword}${sign}${number}year`, formatMethod(now.addYears(number)));                    
+            addSuggestion(result, search, `${baseKeyword}${sign}${number}year`, formatMethod(now.addYears(number)));
         }
-        
+
         async function getAllSuggestions(query, start = 0, end = query.length) {
             const systemSuggestions = await getSystemSuggestions(query, start, end);
             const userSuggestions = await getUserSuggestions(query, start, end);
 
             // pass 1 : get system stenos to inject into user suggestions
-            const toResolve = userSuggestions.flatMap(item => 
+            const toResolve = userSuggestions.flatMap(item =>
                 [...item.replacement.matchAll(/\.\.[^\s]+/g)].map(match => match[0])
             );
 
             // pass 2 : compute system stenos present in user stenos
             const resolved = {};
-            for(const index in toResolve) {
+            for (const index in toResolve) {
                 const item = toResolve[index];
-                if(item in resolved) continue;
-                
+                if (item in resolved) continue;
+
                 const matchingSuggestions = await getSystemSuggestions(item);
-                const systemReplacement = matchingSuggestions.find(x=> x.keyword == item);
-                if(systemReplacement)
+                const systemReplacement = matchingSuggestions.find(x => x.keyword == item);
+                if (systemReplacement)
                     resolved[item] = systemReplacement.replacement;
             }
 
@@ -1054,13 +1061,12 @@
             }
 
             const visibleSystemSuggestions = systemSuggestions.filter(k => {
-                if(k.mustStartWith && !query.toLowerCase().startsWith(k.mustStartWith.toLowerCase()))
+                if (k.mustStartWith && !query.toLowerCase().startsWith(k.mustStartWith.toLowerCase()))
                     return false;
 
-                if(k.excludeExactMatch)
-                {
-                    return k.keyword.toLowerCase().startsWith(query.toLowerCase()) 
-                        && k.keyword.toLowerCase() != query.toLowerCase() 
+                if (k.excludeExactMatch) {
+                    return k.keyword.toLowerCase().startsWith(query.toLowerCase())
+                        && k.keyword.toLowerCase() != query.toLowerCase()
                 }
 
                 return true;
@@ -1070,14 +1076,14 @@
             return visibleSystemSuggestions.concat(userSuggestions)
                 .sort((a, b) => b.keyword.length - a.keyword.length);
         }
-    
-        function createFuzzyRegex(query) {
-          const pattern = query
-            .split('')
-            .map(char => char.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')) // Escape each char individually
-            .join('.*');
 
-          return new RegExp(pattern, 'i');
+        function createFuzzyRegex(query) {
+            const pattern = query
+                .split('')
+                .map(char => char.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')) // Escape each char individually
+                .join('.*');
+
+            return new RegExp(pattern, 'i');
         }
 
         let selectedIndex = 0;
@@ -1088,8 +1094,8 @@
         async function showSuggestions(target, query) {
             let all = await getAllSuggestions(query);
 
-            if(target === masterInput){
-               all = all.filter(k => k.replacement.split(/\r\n|\r|\n/).length <= 1);
+            if (target === masterInput) {
+                all = all.filter(k => k.replacement.split(/\r\n|\r|\n/).length <= 1);
             }
 
             currentMatches = all
@@ -1109,8 +1115,8 @@
         function renderPopup(target) {
             popup.innerHTML = currentMatches.map((m, i) =>
                 `<div class="suggestion-item ${i === selectedIndex ? 'active' : ''}" onclick="applySuggestion('${m.code}', '${m.value}')">
-                    <strong>${m.code}</strong><br><small>${m.value.substring(0, 20)}</small>
-                </div>`
+                        <strong>${m.code}</strong><br><small>${m.value.substring(0, 20)}</small>
+                    </div>`
             ).join('');
 
             popup.style.display = 'block';
@@ -1120,18 +1126,18 @@
 
             if (target.id === 'masterInput') {
                 // Position: Always ABOVE the search bar
-                popup.style.top = 'auto'; 
+                popup.style.top = 'auto';
                 popup.style.bottom = (window.innerHeight - rect.top + margin) + 'px';
                 popup.style.left = rect.left + 'px';
             } else {
                 // Position: Usually BELOW the note line you're typing on
-                // For textareas, the most reliable 'clean' look is attaching it 
+                // For textareas, the most reliable 'clean' look is attaching it
                 // to the bottom of the textarea or the specific line.
                 const spaceBelow = window.innerHeight - rect.bottom;
                 const popupHeight = popup.offsetHeight;
 
                 popup.style.bottom = 'auto';
-                
+
                 // if (spaceBelow < popupHeight + margin) {
                 //     // Flip to top if no room below
                 //     popup.style.top = (rect.top - popupHeight - margin) + 'px';
@@ -1139,7 +1145,7 @@
                 //     popup.style.top = (rect.bottom + margin) + 'px';
                 // }
                 popup.style.top = (rect.bottom + margin) + 'px';
-                
+
                 popup.style.left = rect.left + 'px';
             }
         }
@@ -1148,16 +1154,16 @@
             if (!activeTarget) return;
 
             activeTarget.focus();
-            
+
             // Works for both masterInput and note-item inputs now!
             const val = activeTarget.value;
             const textBefore = val.substring(0, pos);
             const words = textBefore.split(/\s/);
             const lastWord = words[words.length - 1];
-            
+
             const startOffset = pos - lastWord.length;
             const newVal = val.substring(0, startOffset) + value + val.substring(pos);
-            
+
             activeTarget.value = newVal;
 
             // Set caret position to the end of the inserted text
@@ -1174,7 +1180,7 @@
             const snapshotActiveTarget = activeTarget;
             if (activeTarget === masterInput)
                 render();
-            
+
             hidePopup();
 
             const event = new Event('input', { bubbles: true });
@@ -1200,314 +1206,314 @@
             });
         }
 
-// --- Years ---
-Date.prototype.addYears = function(years) {
-	var date = new Date(this.valueOf());
-	date.setFullYear(date.getFullYear() + years);
-	return date;
-};
-
-
-// --- Quarters (3 Months) ---
-Date.prototype.addQuarters = function(quarters) {
-	var date = new Date(this.valueOf());
-	date.setMonth(date.getMonth() + (quarters * 3));
-	return date;
-};
-
-
-// --- Months ---
-Date.prototype.addMonths = function(months) {
-	var date = new Date(this.valueOf());
-	date.setMonth(date.getMonth() + months);
-	return date;
-};
-
-
-// --- Weeks (7 Days) ---
-Date.prototype.addWeeks = function(weeks) {
-	var date = new Date(this.valueOf());
-	date.setDate(date.getDate() + (weeks * 7));
-	return date;
-};
-
-
-// --- Days ---
-Date.prototype.addDays = function(days) {
-	var date = new Date(this.valueOf());
-	date.setDate(date.getDate() + days);
-	return date;
-};
-
-
-// --- Hours ---
-Date.prototype.addHours = function(hours) {
-	var date = new Date(this.valueOf());
-	date.setHours(date.getHours() + hours);
-	return date;
-};
-
-
-// --- Minutes ---
-Date.prototype.addMinutes = function(minutes) {
-	var date = new Date(this.valueOf());
-	date.setMinutes(date.getMinutes() + minutes);
-	return date;
-};
-
-
-// --- Seconds ---
-Date.prototype.addSeconds = function(seconds) {
-	var date = new Date(this.valueOf());
-	date.setSeconds(date.getSeconds() + seconds);
-	return date;
-};
-
-/**
- * Helper to return a new Date instance based on the current one
- * to avoid mutating the original object.
- */
-
-// --- SECOND ---
-Date.prototype.startOfSecond = function() {
-  const d = new Date(this);
-  d.setMilliseconds(0);
-  return d;
-};
-
-Date.prototype.endOfSecond = function() {
-  const d = new Date(this);
-  d.setMilliseconds(999);
-  return d;
-};
-
-// --- MINUTE ---
-Date.prototype.startOfMinute = function() {
-  const d = new Date(this);
-  d.setSeconds(0, 0);
-  return d;
-};
-
-Date.prototype.endOfMinute = function() {
-  const d = new Date(this);
-  d.setSeconds(59, 999);
-  return d;
-};
-
-// --- HOUR ---
-Date.prototype.startOfHour = function() {
-  const d = new Date(this);
-  d.setMinutes(0, 0, 0);
-  return d;
-};
-
-Date.prototype.endOfHour = function() {
-  const d = new Date(this);
-  d.setMinutes(59, 59, 999);
-  return d;
-};
-
-// --- DAY ---
-Date.prototype.startOfDay = function() {
-  const d = new Date(this);
-  d.setHours(0, 0, 0, 0);
-  return d;
-};
-
-Date.prototype.endOfDay = function() {
-  const d = new Date(this);
-  d.setHours(23, 59, 59, 999);
-  return d;
-};
-
-// --- WEEK (Sunday Start) ---
-Date.prototype.startOfWeek = function() {
-  const d = this.startOfDay();
-  const day = d.getDay();
-  d.setDate(d.getDate() - day);
-  return d;
-};
-
-Date.prototype.endOfWeek = function() {
-  const d = this.startOfWeek();
-  d.setDate(d.getDate() + 6);
-  d.setHours(23, 59, 59, 999);
-  return d;
-};
-
-// --- WORK WEEK (Monday - Friday) ---
-Date.prototype.startOfWorkWeek = function() {
-  const d = this.startOfDay();
-  const day = d.getDay();
-  const diff = (day === 0 ? -6 : 1) - day; // Adjust to previous Monday
-  d.setDate(d.getDate() + diff);
-  return d;
-};
-
-Date.prototype.endOfWorkWeek = function() {
-  const d = this.startOfWorkWeek();
-  d.setDate(d.getDate() + 4); // Friday
-  d.setHours(23, 59, 59, 999);
-  return d;
-};
-
-// --- MONTH ---
-Date.prototype.startOfMonth = function() {
-  const d = new Date(this.getFullYear(), this.getMonth(), 1, 0, 0, 0, 0);
-  return d;
-};
-
-Date.prototype.endOfMonth = function() {
-  const d = new Date(this.getFullYear(), this.getMonth() + 1, 0, 23, 59, 59, 999);
-  return d;
-};
-
-// --- QUARTER ---
-Date.prototype.startOfQuarter = function() {
-  const quarterMonth = Math.floor(this.getMonth() / 3) * 3;
-  return new Date(this.getFullYear(), quarterMonth, 1, 0, 0, 0, 0);
-};
-
-Date.prototype.endOfQuarter = function() {
-  const quarterMonth = Math.floor(this.getMonth() / 3) * 3 + 2;
-  return new Date(this.getFullYear(), quarterMonth + 1, 0, 23, 59, 59, 999);
-};
-
-// --- YEAR ---
-Date.prototype.startOfYear = function() {
-  return new Date(this.getFullYear(), 0, 1, 0, 0, 0, 0);
-};
-
-Date.prototype.endOfYear = function() {
-  return new Date(this.getFullYear(), 11, 31, 23, 59, 59, 999);
-};
-
-
-
-/**
- * Returns the next occurrence of a specific weekday.
- * @param {number} dayOfWeek - The target day (0 for Sunday, 1 for Monday, etc.)
- * @param {boolean} includeToday - If true, and today is the target day, returns today.
- */
-Date.prototype.nextWeekDay = function(dayOfWeek, includeToday = false) {
-	var date = new Date(this.valueOf());
-	var day = date.getDay();
-	var diff = dayOfWeek - day;
-
-
-	if (diff < 0 || (diff === 0 && !includeToday)) {
-		diff += 7;
-	}
-
-
-	date.setDate(date.getDate() + diff);
-	return date;
-};
-
-
-/**
- * Returns the previous occurrence of a specific weekday.
- * @param {number} dayOfWeek - The target day (0 for Sunday, 1 for Monday, etc.)
- * @param {boolean} includeToday - If true, and today is the target day, returns today.
- */
-Date.prototype.prevWeekDay = function(dayOfWeek, includeToday = false) {
-	var date = new Date(this.valueOf());
-	var day = date.getDay();
-	var diff = day - dayOfWeek;
-
-
-	if (diff < 0 || (diff === 0 && !includeToday)) {
-		diff += 7;
-	}
-
-
-	date.setDate(date.getDate() - diff);
-	return date;
-};
-
-
-// Helper to ensure leading zeros
-Date.prototype._pad = function(num) {
-	return num < 10 ? '0' + num : num;
-};
-
-
-Date.prototype.formatY = function() {
-	return this.getFullYear().toString();
-};
-
-// YMD: 2023-10-25
-Date.prototype.formatYMD = function(separator = '-') {
-	return this.getFullYear() + separator + 
-		this._pad(this.getMonth() + 1) + separator + 
-		this._pad(this.getDate());
-};
-
-
-// YMDHM: 2023-10-25 14:30
-Date.prototype.formatYMDHM = function(dateSep = '-', timeSep = ':') {
-	return this.formatYMD(dateSep) + ' ' + 
-		this._pad(this.getHours()) + timeSep + 
-		this._pad(this.getMinutes());
-};
-
-
-// YQ: 2023-Q4
-Date.prototype.formatYQ = function() {
-	var quarter = Math.floor(this.getMonth() / 3) + 1;
-	return this.getFullYear() + '-Q' + quarter;
-};
-
-
-// YM: 2023-10
-Date.prototype.formatYM = function(separator = '-') {
-	return this.getFullYear() + separator + 
-		this._pad(this.getMonth() + 1);
-};
-
-
-/**
- * YW: 2026-W19
- * Returns the Year and the ISO week number.
- */
-Date.prototype.formatYW = function(separator = '-') {
-	var date = new Date(this.getTime());
-	
-	// ISO week date strategy:
-	// 1. Set to Thursday of the current week
-	date.setDate(date.getDate() + 4 - (date.getDay() || 7));
-	
-	// 2. Get the first day of the year
-	var yearStart = new Date(date.getFullYear(), 0, 1);
-	
-	// 3. Calculate full weeks between yearStart and the current Thursday
-	var weekNo = Math.ceil((((date - yearStart) / 86400000) + 1) / 7);
-	
-	return date.getFullYear() + separator + 'W' + this._pad(weekNo);
-};
-
-
-// YMW (Year-Month-Week Number of the month): 2023-10-W4
-Date.prototype.formatYMW = function(separator = '-') {
-	var day = this.getDate();
-	var weekNum = Math.ceil(day / 7);
-	return this.formatYM(separator) + separator + 'W' + weekNum;
-};
-
-
-// HM: 14:30
-Date.prototype.formatHM = function(separator = ':') {
-	return this._pad(this.getHours()) + separator + 
-	    this._pad(this.getMinutes());
-};
-
-
-// HMS: 14:30:05
-Date.prototype.formatHMS = function(separator = ':') {
-	return this.formatHM(separator) + separator + 
-		this._pad(this.getSeconds());
-};
-        
+        // --- Years ---
+        Date.prototype.addYears = function (years) {
+            var date = new Date(this.valueOf());
+            date.setFullYear(date.getFullYear() + years);
+            return date;
+        };
+
+
+        // --- Quarters (3 Months) ---
+        Date.prototype.addQuarters = function (quarters) {
+            var date = new Date(this.valueOf());
+            date.setMonth(date.getMonth() + (quarters * 3));
+            return date;
+        };
+
+
+        // --- Months ---
+        Date.prototype.addMonths = function (months) {
+            var date = new Date(this.valueOf());
+            date.setMonth(date.getMonth() + months);
+            return date;
+        };
+
+
+        // --- Weeks (7 Days) ---
+        Date.prototype.addWeeks = function (weeks) {
+            var date = new Date(this.valueOf());
+            date.setDate(date.getDate() + (weeks * 7));
+            return date;
+        };
+
+
+        // --- Days ---
+        Date.prototype.addDays = function (days) {
+            var date = new Date(this.valueOf());
+            date.setDate(date.getDate() + days);
+            return date;
+        };
+
+
+        // --- Hours ---
+        Date.prototype.addHours = function (hours) {
+            var date = new Date(this.valueOf());
+            date.setHours(date.getHours() + hours);
+            return date;
+        };
+
+
+        // --- Minutes ---
+        Date.prototype.addMinutes = function (minutes) {
+            var date = new Date(this.valueOf());
+            date.setMinutes(date.getMinutes() + minutes);
+            return date;
+        };
+
+
+        // --- Seconds ---
+        Date.prototype.addSeconds = function (seconds) {
+            var date = new Date(this.valueOf());
+            date.setSeconds(date.getSeconds() + seconds);
+            return date;
+        };
+
+        /**
+         * Helper to return a new Date instance based on the current one
+         * to avoid mutating the original object.
+         */
+
+        // --- SECOND ---
+        Date.prototype.startOfSecond = function () {
+            const d = new Date(this);
+            d.setMilliseconds(0);
+            return d;
+        };
+
+        Date.prototype.endOfSecond = function () {
+            const d = new Date(this);
+            d.setMilliseconds(999);
+            return d;
+        };
+
+        // --- MINUTE ---
+        Date.prototype.startOfMinute = function () {
+            const d = new Date(this);
+            d.setSeconds(0, 0);
+            return d;
+        };
+
+        Date.prototype.endOfMinute = function () {
+            const d = new Date(this);
+            d.setSeconds(59, 999);
+            return d;
+        };
+
+        // --- HOUR ---
+        Date.prototype.startOfHour = function () {
+            const d = new Date(this);
+            d.setMinutes(0, 0, 0);
+            return d;
+        };
+
+        Date.prototype.endOfHour = function () {
+            const d = new Date(this);
+            d.setMinutes(59, 59, 999);
+            return d;
+        };
+
+        // --- DAY ---
+        Date.prototype.startOfDay = function () {
+            const d = new Date(this);
+            d.setHours(0, 0, 0, 0);
+            return d;
+        };
+
+        Date.prototype.endOfDay = function () {
+            const d = new Date(this);
+            d.setHours(23, 59, 59, 999);
+            return d;
+        };
+
+        // --- WEEK (Sunday Start) ---
+        Date.prototype.startOfWeek = function () {
+            const d = this.startOfDay();
+            const day = d.getDay();
+            d.setDate(d.getDate() - day);
+            return d;
+        };
+
+        Date.prototype.endOfWeek = function () {
+            const d = this.startOfWeek();
+            d.setDate(d.getDate() + 6);
+            d.setHours(23, 59, 59, 999);
+            return d;
+        };
+
+        // --- WORK WEEK (Monday - Friday) ---
+        Date.prototype.startOfWorkWeek = function () {
+            const d = this.startOfDay();
+            const day = d.getDay();
+            const diff = (day === 0 ? -6 : 1) - day; // Adjust to previous Monday
+            d.setDate(d.getDate() + diff);
+            return d;
+        };
+
+        Date.prototype.endOfWorkWeek = function () {
+            const d = this.startOfWorkWeek();
+            d.setDate(d.getDate() + 4); // Friday
+            d.setHours(23, 59, 59, 999);
+            return d;
+        };
+
+        // --- MONTH ---
+        Date.prototype.startOfMonth = function () {
+            const d = new Date(this.getFullYear(), this.getMonth(), 1, 0, 0, 0, 0);
+            return d;
+        };
+
+        Date.prototype.endOfMonth = function () {
+            const d = new Date(this.getFullYear(), this.getMonth() + 1, 0, 23, 59, 59, 999);
+            return d;
+        };
+
+        // --- QUARTER ---
+        Date.prototype.startOfQuarter = function () {
+            const quarterMonth = Math.floor(this.getMonth() / 3) * 3;
+            return new Date(this.getFullYear(), quarterMonth, 1, 0, 0, 0, 0);
+        };
+
+        Date.prototype.endOfQuarter = function () {
+            const quarterMonth = Math.floor(this.getMonth() / 3) * 3 + 2;
+            return new Date(this.getFullYear(), quarterMonth + 1, 0, 23, 59, 59, 999);
+        };
+
+        // --- YEAR ---
+        Date.prototype.startOfYear = function () {
+            return new Date(this.getFullYear(), 0, 1, 0, 0, 0, 0);
+        };
+
+        Date.prototype.endOfYear = function () {
+            return new Date(this.getFullYear(), 11, 31, 23, 59, 59, 999);
+        };
+
+
+
+        /**
+         * Returns the next occurrence of a specific weekday.
+         * @param {number} dayOfWeek - The target day (0 for Sunday, 1 for Monday, etc.)
+         * @param {boolean} includeToday - If true, and today is the target day, returns today.
+         */
+        Date.prototype.nextWeekDay = function (dayOfWeek, includeToday = false) {
+            var date = new Date(this.valueOf());
+            var day = date.getDay();
+            var diff = dayOfWeek - day;
+
+
+            if (diff < 0 || (diff === 0 && !includeToday)) {
+                diff += 7;
+            }
+
+
+            date.setDate(date.getDate() + diff);
+            return date;
+        };
+
+
+        /**
+         * Returns the previous occurrence of a specific weekday.
+         * @param {number} dayOfWeek - The target day (0 for Sunday, 1 for Monday, etc.)
+         * @param {boolean} includeToday - If true, and today is the target day, returns today.
+         */
+        Date.prototype.prevWeekDay = function (dayOfWeek, includeToday = false) {
+            var date = new Date(this.valueOf());
+            var day = date.getDay();
+            var diff = day - dayOfWeek;
+
+
+            if (diff < 0 || (diff === 0 && !includeToday)) {
+                diff += 7;
+            }
+
+
+            date.setDate(date.getDate() - diff);
+            return date;
+        };
+
+
+        // Helper to ensure leading zeros
+        Date.prototype._pad = function (num) {
+            return num < 10 ? '0' + num : num;
+        };
+
+
+        Date.prototype.formatY = function () {
+            return this.getFullYear().toString();
+        };
+
+        // YMD: 2023-10-25
+        Date.prototype.formatYMD = function (separator = '-') {
+            return this.getFullYear() + separator +
+                this._pad(this.getMonth() + 1) + separator +
+                this._pad(this.getDate());
+        };
+
+
+        // YMDHM: 2023-10-25 14:30
+        Date.prototype.formatYMDHM = function (dateSep = '-', timeSep = ':') {
+            return this.formatYMD(dateSep) + ' ' +
+                this._pad(this.getHours()) + timeSep +
+                this._pad(this.getMinutes());
+        };
+
+
+        // YQ: 2023-Q4
+        Date.prototype.formatYQ = function () {
+            var quarter = Math.floor(this.getMonth() / 3) + 1;
+            return this.getFullYear() + '-Q' + quarter;
+        };
+
+
+        // YM: 2023-10
+        Date.prototype.formatYM = function (separator = '-') {
+            return this.getFullYear() + separator +
+                this._pad(this.getMonth() + 1);
+        };
+
+
+        /**
+         * YW: 2026-W19
+         * Returns the Year and the ISO week number.
+         */
+        Date.prototype.formatYW = function (separator = '-') {
+            var date = new Date(this.getTime());
+
+            // ISO week date strategy:
+            // 1. Set to Thursday of the current week
+            date.setDate(date.getDate() + 4 - (date.getDay() || 7));
+
+            // 2. Get the first day of the year
+            var yearStart = new Date(date.getFullYear(), 0, 1);
+
+            // 3. Calculate full weeks between yearStart and the current Thursday
+            var weekNo = Math.ceil((((date - yearStart) / 86400000) + 1) / 7);
+
+            return date.getFullYear() + separator + 'W' + this._pad(weekNo);
+        };
+
+
+        // YMW (Year-Month-Week Number of the month): 2023-10-W4
+        Date.prototype.formatYMW = function (separator = '-') {
+            var day = this.getDate();
+            var weekNum = Math.ceil(day / 7);
+            return this.formatYM(separator) + separator + 'W' + weekNum;
+        };
+
+
+        // HM: 14:30
+        Date.prototype.formatHM = function (separator = ':') {
+            return this._pad(this.getHours()) + separator +
+                this._pad(this.getMinutes());
+        };
+
+
+        // HMS: 14:30:05
+        Date.prototype.formatHMS = function (separator = ':') {
+            return this.formatHM(separator) + separator +
+                this._pad(this.getSeconds());
+        };
+
         initDB().then(() => render(true));
     </script>
 
