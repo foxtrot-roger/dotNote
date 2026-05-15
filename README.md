@@ -36,7 +36,10 @@ No folders, no schemas, only `..yourStenos`.
 - the search bar acts as note creation input
 - to search stenos start the search with `..`
 
+When you start the search with `..` dotNote will hide all your note and show you all your stenos, the data is not gone, it's how you change between defining stenos and creating notes.
+
 ### Stenos
+
 - stenos names can be overloaded
 - the steno format is "..keyword replacement" and is visible as "keyword"
 - eg. "..my_keyword my custom text" → the user types "my" is presented with "my_keyword" → inserts "my custom text"
