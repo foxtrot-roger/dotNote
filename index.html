@@ -32,6 +32,7 @@
             --note-bg: #FFFDFB;
             --font-main: 'Playfair Display', Georgia, serif;
         }
+
         body.theme-moss {
             --bg: #F7F8FA; /* Off-white Cloud */
             --text: #3B4250; /* Slate Grey */
@@ -43,6 +44,7 @@
             --note-bg: rgba(255, 255, 255, 0.7);
             --font-main: 'Inter', sans-serif;
         }
+
         body.theme-black {
             --bg: #16161A; /* Deep Charcoal */
             --text: #E1E7EE; /* Mist White */
@@ -54,6 +56,7 @@
             --note-bg: #1C1C1E;
             --font-main: 'Cascadia Code', 'Fira Code', monospace;
         }
+
         body.theme-warm {
             --bg: #FFF6EB; /* Light Sand */
             --text: #43464B; /* Graphite */
@@ -117,7 +120,7 @@
             display: none;
             position: fixed;
             top: 50px;
-            right: 20px;
+            right: 0px;
             background: white;
             border: 1px solid var(--border);
             box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1);
@@ -125,6 +128,8 @@
             padding: 15px;
             z-index: 1000;
             width: 300px;
+            max-height: 80%;
+            overflow-y: auto;
         }
 
         /* --- Full Width & Minimal Spacing --- */
@@ -352,8 +357,8 @@
         .side-menu {
             position: fixed;
             top: 0;
-            left: -280px; /* Hidden by default */
-            width: 280px;
+            left: -80%; /* Hidden by default */
+            width: 80%;
             height: 100%;
             background: white;
             box-shadow: 2px 0 10px rgba(0,0,0,0.1);
@@ -365,6 +370,7 @@
             box-sizing: border-box;
             border-top-right-radius: 12px;
             border-bottom-right-radius: 12px;
+            overflow-y: auto;
         }
 
             .side-menu.open {
@@ -426,6 +432,158 @@
             .menu-overlay.show {
                 display: block;
             }
+
+
+/* sync styles */
+        .sync-card {
+            background: var(--hover);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 12px;
+            margin-bottom: 10px;
+        }
+            .sync-card label {
+                border: none;
+                padding: 0;
+                font-size: 0.6rem;
+                font-size: 0.65rem;
+                font-weight: 600;
+                text-transform: uppercase;
+                color: var(--secondary-text);
+                letter-spacing: 0.5px;
+            }
+
+        .sync-input-wrapper {
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+            margin-bottom: 12px;
+        }
+
+        .sync-card input {
+            background: var(--note-bg);
+            border: 1px solid var(--border);
+            border-radius: 4px;
+            padding: 8px;
+            color: var(--text);
+            font-family: var(--font-main);
+            font-size: 0.8rem;
+            outline: none;
+            transition: border-color 0.2s;
+        }
+
+            .sync-card input:focus {
+                border-color: var(--accent);
+            }
+
+        .sync-actions {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 8px;
+        }
+
+        .sync-btn {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+            padding: 8px;
+            border: 1px solid var(--border);
+            border-radius: 4px;
+            background: var(--note-bg);
+            color: var(--text);
+            font-size: 0.75rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+            .sync-btn span {
+                font-size: 1rem;
+                line-height: 0;
+            }
+
+            .sync-btn:hover {
+                border-color: var(--accent);
+                color: var(--accent);
+                background: var(--bg);
+            }
+
+            .sync-btn.put:active {
+                transform: translateY(-2px);
+            }
+
+            .sync-btn.get:active {
+                transform: translateY(2px);
+            }
+
+        .sync-row {
+            display: flex;
+            gap: 8px;
+            margin-bottom: 12px;
+        }
+
+        .sync-verb-wrapper {
+            display: flex;
+            flex-direction: column;
+            flex: 0 0 80px;
+        }
+
+        .sync-url-wrapper {
+            display: flex;
+            flex-direction: column;
+            flex: 1;
+        }
+
+        #syncVerb {
+            width: 100%;
+            padding: 8px;
+            border-radius: 4px;
+            border: 1px solid var(--border);
+            background: var(--note-bg);
+            color: var(--text);
+            font-family: var(--font-main);
+            font-size: 0.8rem;
+        }
+
+        #syncHeaders {
+            width: 100%;
+            height: 60px;
+            background: var(--note-bg);
+            border: 1px solid var(--border);
+            border-radius: 4px;
+            padding: 8px;
+            color: var(--text);
+            font-family: monospace;
+            font-size: 0.7rem;
+            resize: none;
+            box-sizing: border-box;
+            margin-bottom: 12px;
+        }
+
+        .sync-config-content {
+            display: none;
+            margin-bottom: 12px;
+            padding-top: 10px;
+            border-top: 1px dashed var(--border);
+        }
+
+            .sync-config-content.show {
+                display: block;
+            }
+
+        .config-toggle {
+            width: 100%;
+            background: none;
+            border: none;
+            color: var(--accent);
+            font-size: 0.7rem;
+            cursor: pointer;
+            padding: 5px 0;
+            text-align: center;
+            margin-bottom: 5px;
+            font-weight: 600;
+        }
     </style>
 </head>
 
@@ -437,28 +595,32 @@
         <div class="shortcut-row"><span>Copy full note</span> <span class="kbd">Ctrl+C</span></div>
         <div class="shortcut-row"><span>Navigate Notes</span> <span class="kbd">Ctrl+↑/↓</span></div>
 
-        <h4 style="margin: 15px 0 10px 0; color:var(--accent)">Date and Time</h4>
+        <h4 style="margin: 15px 0 10px 0; color:var(--accent)">Relative Date &amp; Time</h4>
+        <div class="shortcut-row"><span>Today (Date)</span> <span class="kbd">..today</span></div>
+        <div class="shortcut-row"><span>Yesterday (Date)</span> <span class="kbd">..yesterday</span></div>
+        <div class="shortcut-row"><span>Tomorrow (Date)</span> <span class="kbd">..tomorrow</span></div>
+
+        <h4 style="margin: 15px 0 10px 0; color:var(--accent)">Current Date and Time</h4>
+        <p style="font-size: 0.7rem; color: var(--secondary-text); margin-top: 10px;">
+            All support the format <br />
+            <b>..keyword[+-]{number}{unit}</b>
+        </p>
         <div class="shortcut-row"><span>Current Date/Time</span> <span class="kbd">..now</span></div>
         <div class="shortcut-row"><span>Current Time</span> <span class="kbd">..time</span></div>
         <div class="shortcut-row"><span>Current Date</span> <span class="kbd">..date</span></div>
         <div class="shortcut-row"><span>Current Week</span> <span class="kbd">..week</span></div>
+
+        <h4 style="margin: 15px 0 10px 0; color:var(--accent)">Date</h4>
+        <p style="font-size: 0.7rem; color: var(--secondary-text); margin-top: 10px;">
+            All support the formats <br />
+            <b>..{keyword}[+-]{number}{unit}</b> <br />
+            <b>..{keyword}.startDay[+-]{number}{unit}</b> <br />
+            <b>..{keyword}.endDay[+-]{number}{unit}</b> <br />
+        </p>
         <div class="shortcut-row"><span>Current Month</span> <span class="kbd">..month</span></div>
         <div class="shortcut-row"><span>Current Quarter</span> <span class="kbd">..quarter</span></div>
         <div class="shortcut-row"><span>Current Year</span> <span class="kbd">..year</span></div>
 
-        <h4 style="margin: 15px 0 10px 0; color:var(--accent)">Relative Date &amp; Time</h4>
-        <p style="font-size: 0.7rem; color: var(--secondary-text); margin-top: 10px;">
-            All support the format <br /> <b>..keyword[+-]{number}{unit}</b>
-        </p>
-        <div class="shortcut-row"><span>Today (Date)</span> <span class="kbd">..today</span></div>
-        <div class="shortcut-row"><span>Yesterday (Date)</span> <span class="kbd">..yesterday</span></div>
-        <div class="shortcut-row"><span>Tomorrow (Date)</span> <span class="kbd">..tomorrow</span></div>
-        <div class="shortcut-row"><span>Start of day (Date/Time)</span> <span class="kbd">..startOfDay</span></div>
-        <div class="shortcut-row"><span>End of day (Date/Time)</span> <span class="kbd">..endOfDay</span></div>
-        <div class="shortcut-row"><span>Start of week (Date)</span> <span class="kbd">..startOfWeek</span></div>
-        <div class="shortcut-row"><span>End of week (Date)</span> <span class="kbd">..endOfWeek</span></div>
-        <div class="shortcut-row"><span>Start of work week (Date)</span> <span class="kbd">..startOfWeek</span></div>
-        <div class="shortcut-row"><span>End of work week (Date)</span> <span class="kbd">..endOfWeek</span></div>
 
         <h4 style="margin: 15px 0 10px 0; color:var(--accent)">User stenos</h4>
         <p style="font-size: 0.7rem; color: var(--secondary-text); margin-top: 10px;">
@@ -476,12 +638,68 @@
             </div>
 
             <div class="menu-section">
+                <h4>Cloud Sync</h4>
+                <div class="sync-card">
+                    <div class="sync-actions">
+                        <button class="sync-btn put" onclick="pushToCloud()" title="Push to Cloud">
+                            <span>↑</span> Push
+                        </button>
+                        <button class="sync-btn get" onclick="getFromUrl()" title="Pull from Cloud">
+                            <span>↓</span> Pull
+                        </button>
+                    </div>
+
+                    <button class="config-toggle" onclick="toggleSyncConfig()" id="syncConfigBtn">
+                        ⚙ Show Config
+                    </button>
+
+                    <div id="syncConfigContent" class="sync-config-content">
+                        <div class="sync-input-wrapper" style="margin-bottom: 12px;">
+                            <label for="syncPreset">Service Preset</label>
+                            <select id="syncPreset" onchange="applySyncPreset(this.value)" style="width: 100%; padding: 8px; border-radius: 4px; border: 1px solid var(--border); background: var(--note-bg); color: var(--text); font-family: var(--font-main); font-size: 0.8rem;">
+                                <option value="">-- Select a Preset --</option>
+                                <option value="put">Generic Webhook (PUT)</option>
+                                <option value="post">Generic Webhook (POST)</option>
+                                <option value="jsonbin">JSONbin.io</option>
+                                <option value="firebase">Firebase Realtime DB</option>
+                            </select>
+                        </div>
+
+                        <div class="sync-row">
+                            <div class="sync-verb-wrapper">
+                                <label for="syncVerb">VERB</label>
+                                <select id="syncVerb">
+                                    <option value="PUT">PUT</option>
+                                    <option value="POST">POST</option>
+                                    <option value="PATCH">PATCH</option>
+                                </select>
+                            </div>
+                            <div class="sync-url-wrapper">
+                                <label for="syncUrl">ENDPOINT</label>
+                                <input type="text" id="syncUrl" placeholder="https://api.example.com/notes">
+                            </div>
+                        </div>
+
+                        <div class="sync-input-wrapper">
+                            <label for="syncHeaders">Headers (list of field:value)</label>
+                            <textarea id="syncHeaders" placeholder="Content-Type: application/json"></textarea>
+                        </div>
+                        <div class="sync-input-wrapper">
+                            <label for="syncPath">Data Path (e.g. record.notes)</label>
+                            <input type="text" id="syncPath" placeholder="Leave empty if root is an array">
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="menu-section">
                 <h4>Download</h4>
                 <button class="menu-btn" onclick="downloadDotNote()">Standalone version</button>
             </div>
 
             <div class="menu-section">
                 <h4>Export</h4>
+                <button class="menu-btn" onclick="exportVisibleJSON()">Visible Only</button>
                 <button class="menu-btn" onclick="exportJSON()">Everything</button>
                 <button class="menu-btn" onclick="exportNotesJSON()">Notes Only</button>
                 <button class="menu-btn" onclick="exportVocabularyJSON()">Vocabulary Only</button>
@@ -493,8 +711,8 @@
                 <button class="menu-btn" onclick="document.getElementById('importFile').click()">Import (Merge)</button>
             </div>
 
-            <input type="file" id="loadFile" style="display:none" accept=".json" onchange="loadJSON(event)">
-            <input type="file" id="importFile" style="display:none" accept=".json" onchange="importJSON(event)">
+            <input type="file" id="loadFile" style="display:none" accept=".txt" onchange="loadJSON(event)">
+            <input type="file" id="importFile" style="display:none" accept=".txt" onchange="importJSON(event)">
 
             <div class="menu-section">
                 <h4>Themes</h4>
@@ -650,19 +868,19 @@
             notesList.innerHTML = filteredNotes
                 .map(note => `
 <div class="note-item" data-id="${note.id}">
-                                                <textarea
-                                                     class="note-content"
-                                                     spellcheck="false"
-                                                     onkeydown="handleNoteKeydown(event)"
-                                                     oninput="autoExpand(this); handleNoteInput(event)"
-                                                     onfocus="handleNoteFocus(event)"
-                                                     onblur="handleUpdate(${note.id}, this.value)">${note.text}</textarea>
-                                                <div class="actions">
-                                                    <button class="btn-action" title="Copy" onclick="copyToClipboard(this.parentElement.previousElementSibling.value)">📋</button>
-                                                    <button class="btn-action" title="Delete" style="color:var(--danger)" onclick="deleteNote(${note.id})">✕</button>
-                                                </div>
+                        <textarea
+                                class="note-content"
+                                spellcheck="false"
+                                onkeydown="handleNoteKeydown(event)"
+                                oninput="autoExpand(this); handleNoteInput(event)"
+                                onfocus="handleNoteFocus(event)"
+                                onblur="handleUpdate(${note.id}, this.value)">${note.text}</textarea>
+                        <div class="actions">
+                            <button class="btn-action" title="Copy" onclick="copyToClipboard(this.parentElement.previousElementSibling.value)">📋</button>
+                            <button class="btn-action" title="Delete" style="color:var(--danger)" onclick="deleteNote(${note.id})">✕</button>
+                        </div>
 </div>
-                                                            `).join('');
+                `).join('');
 
             document.querySelectorAll('.note-content').forEach(el => autoExpand(el));
             if (shouldScroll || masterInput.value === "") {
@@ -722,35 +940,184 @@
             navigator.clipboard.writeText(text);
         }
 
+        const syncUrl = document.getElementById('syncUrl');
+        const syncVerb = document.getElementById('syncVerb');
+        const syncHeaders = document.getElementById('syncHeaders');
+        const syncPath = document.getElementById('syncPath');
+        function toggleSyncConfig() {
+            const content = document.getElementById('syncConfigContent');
+            const btn = document.getElementById('syncConfigBtn');
+            const isShowing = content.classList.toggle('show');
+            btn.innerText = isShowing ? "▲ Hide Config" : "⚙ Show Config";
+        }
+        function applySyncPreset(service) {
+            switch (service) {
+                case 'jsonbin':
+                    syncUrl.value = 'https://api.jsonbin.io/v3/b/<YOUR_BIN_ID>';
+                    syncVerb.value = 'PUT';
+                    syncHeaders.value = 'Content-Type: application/json\nX-Master-Key: <API_KEY>\nX-Access-Key: <ACCESS_KEY>';
+                    syncPath.value = 'record';
+                    break;
+                case 'firebase':
+                    syncUrl.value = 'https://<PROJECT_ID>.firebaseio.com/notes.json';
+                    syncVerb.value = 'PUT';
+                    syncHeaders.value = '';
+                    syncPath.value = '';
+                    break;
+                case 'put':
+                    syncUrl.value = 'https://';
+                    syncVerb.value = 'PUT';
+                    syncHeaders.value = 'Content-Type: application/json';
+                    syncPath.value = '';
+                    break;
+                case 'post':
+                    syncUrl.value = 'https://';
+                    syncVerb.value = 'POST';
+                    syncHeaders.value = 'Content-Type: application/json';
+                    syncPath.value = '';
+                    break;
+            }
+        }
+        function parseHeaders() {
+            const headerText = syncHeaders.value;
+            const headers = { 'Content-Type': 'application/json' };
+
+            headerText.split('\n').forEach(line => {
+                const parts = line.split(':');
+                if (parts.length >= 2) {
+                    const key = parts[0].trim();
+                    const value = parts.slice(1).join(':').trim();
+                    if (key) headers[key] = value;
+                }
+            });
+            return headers;
+        }
+        function resolvePath(obj, path) {
+            if (!path || path.trim() === "") return obj;
+            return path.split('.').reduce((prev, curr) => {
+                return prev ? prev[curr] : null;
+            }, obj);
+        }
+        function saveSyncSettings() {
+            localStorage.setItem('dotNotes-syncUrl', syncUrl.value);
+            localStorage.setItem('dotNotes-syncVerb', syncVerb.value);
+            localStorage.setItem('dotNotes-syncHeaders', syncHeaders.value);
+            localStorage.setItem('dotNotes-syncPath', syncPath.value);
+        }
+
+        window.addEventListener('DOMContentLoaded', () => {
+            syncUrl.value = localStorage.getItem('dotNotes-syncUrl') || '';
+            syncVerb.value = localStorage.getItem('dotNotes-syncVerb') || 'PUT';
+            syncHeaders.value = localStorage.getItem('dotNotes-syncHeaders') || '';
+            syncPath.value = localStorage.getItem('dotNotes-syncPath') || '';
+        });
+
+        async function getFromUrl() {
+            try {
+                const url = syncUrl.value;
+                const path = syncPath.value;
+
+                if (!url) return alert("Please enter an endpoint URL.");
+                saveSyncSettings();
+
+                const response = await fetch(url, {
+                    method: 'GET',
+                    headers: parseHeaders()
+                });
+
+                if (!response.ok) throw new Error(`Server error: ${response.status}`);
+
+                const fullResponseJson = await response.json();
+
+                const importedData = resolvePath(fullResponseJson, path);
+
+                if (Array.isArray(importedData)) {
+                    if (confirm(`Found ${importedData.length} notes. Replace local data?`)) {
+                        await dbClearAll();
+                        for (const note of importedData) {
+                            if (note.text || note.content) {
+                                await dbAddNote(note);
+                            }
+                        }
+                        render(true);
+                    }
+                } else {
+                    console.error("Data at path is not an array:", importedData);
+                    alert(`Error: The data at path "${path || 'root'}" is not a list/array.`);
+                }
+
+            } catch (err) {
+                alert("Pull failed: " + err.message);
+            }
+        }
+        async function pushToCloud() {
+            try {
+                const url = syncUrl.value;
+                const verb = syncVerb.value;
+
+                if (!url) return alert("Error: No Endpoint URL provided in Config.");
+
+                saveSyncSettings();
+
+                const notes = await getAllNotes();
+                const response = await fetch(url, {
+                    method: verb,
+                    headers: parseHeaders(),
+                    body: JSON.stringify(notes)
+                });
+
+                if (!response.ok) throw new Error(`Server returned ${response.status}`);
+                alert("Push Successful: " + new Date().toLocaleTimeString());
+            } catch (err) {
+                alert("Push Failed: " + err.message);
+            }
+        }
+
         async function exportJSON() {
             const notes = await getAllNotes();
-            const dataStr = JSON.stringify(notes, null, 2);
-            const dataUri = 'data:application/json;charset=utf-8,' + encodeURIComponent(dataStr);
-            const linkElement = document.createElement('a');
-            linkElement.setAttribute('href', dataUri);
-            linkElement.setAttribute('download', `dotdot_all_${new Date().toISOString().slice(0, 10)}.json`);
-            linkElement.click();
+            await exportData(notes, "dotNote", "Export all", "Here is my full export.")
+        }
+        async function exportVisibleJSON() {
+            if (filteredNotes)
+                await exportData(filteredNotes, "dotNote", "Export all", "Here is my full export.")
         }
         async function exportNotesJSON() {
             const notes = await getAllNotes();
-            const vocabulary = notes.filter(note => !note.text.startsWith(".."));
-            const dataStr = JSON.stringify(vocabulary, null, 2);
-            const dataUri = 'data:application/json;charset=utf-8,' + encodeURIComponent(dataStr);
-            const linkElement = document.createElement('a');
-            linkElement.setAttribute('href', dataUri);
-            linkElement.setAttribute('download', `dotdot_notes_${new Date().toISOString().slice(0, 10)}.json`);
-            linkElement.click();
+            const textNotes = notes.filter(note => !note.text.startsWith(".."));
+            await exportData(textNotes, "dotNoteNotes", "Export notes", "Here is my exported notes.");
         }
         async function exportVocabularyJSON() {
             const notes = await getAllNotes();
             const vocabulary = notes.filter(note => note.text.startsWith(".."));
-            const dataStr = JSON.stringify(vocabulary, null, 2);
-            const dataUri = 'data:application/json;charset=utf-8,' + encodeURIComponent(dataStr);
-            const linkElement = document.createElement('a');
-            linkElement.setAttribute('href', dataUri);
-            linkElement.setAttribute('download', `dotdot_vocabulary_${new Date().toISOString().slice(0, 10)}.json`);
-            linkElement.click();
+            await exportData(vocabulary, "dotNoteVocabulary", "Export vocabulary", "Here is my exported vocabulary list.")
         }
+
+        async function exportData(notes, filename, title, text) {
+            filename = `${filename}_${new Date().toISOString().slice(0, 10)}.txt`;
+            const dataStr = JSON.stringify(notes, null, 2);
+            const file = new File([dataStr], filename, { type: 'text/plain' });
+
+            if (navigator.canShare && navigator.canShare({ files: [file] })) {
+                try {
+                    await navigator.share({
+                        files: [file],
+                        title: title,
+                        text: text
+                    });
+                } catch (err) {
+                    // User cancelled or share failed
+                    alert('Share failed: ' + err);
+                }
+            }
+            else {
+                const dataUri = 'data:application/json;charset=utf-8,' + encodeURIComponent(dataStr);
+                const linkElement = document.createElement('a');
+                linkElement.setAttribute('href', dataUri);
+                linkElement.setAttribute('download', filename);
+                linkElement.click();
+            }
+        }
+
         function downloadDotNote() {
             const linkElement = document.createElement('a');
             linkElement.setAttribute('href', window.location.href);
@@ -1021,12 +1388,66 @@
             getSuggestionFor(result, search, now, "..month", x => x.formatYM());
             getSuggestionFor(result, search, now, "..quarter", x => x.formatYQ());
             getSuggestionFor(result, search, now, "..year", x => x.formatY());
-            getSuggestionFor(result, search, now.startOfDay(), "..startOfDay", x => x.formatYMDHM());
-            getSuggestionFor(result, search, now.endOfDay(), "..endOfDay", x => x.formatYMDHM());
-            getSuggestionFor(result, search, now.startOfWeek(), "..startOfWeek", x => x.formatYMD());
-            getSuggestionFor(result, search, now.endOfWeek(), "..endOfWeek", x => x.formatYMD());
-            getSuggestionFor(result, search, now.startOfWorkWeek(), "..startOfWorkWeek", x => x.formatYMD());
-            getSuggestionFor(result, search, now.endOfWorkWeek(), "..endOfWorkWeek", x => x.formatYMD());
+
+            getSuggestionFor(result, search, now.startOfWeek().addDays(0), "..week.monday.date", x => x.formatYMD());
+            getSuggestionFor(result, search, now.startOfWeek().addDays(0), "..week.monday.month", x => x.formatYM());
+            getSuggestionFor(result, search, now.startOfWeek().addDays(0), "..week.monday.quarter", x => x.formatYQ());
+            getSuggestionFor(result, search, now.startOfWeek().addDays(0), "..week.monday.year", x => x.formatY());
+            getSuggestionFor(result, search, now.startOfWeek().addDays(1), "..week.tuesday.date", x => x.formatYMD());
+            getSuggestionFor(result, search, now.startOfWeek().addDays(1), "..week.tuesday.month", x => x.formatYM());
+            getSuggestionFor(result, search, now.startOfWeek().addDays(1), "..week.tuesday.quarter", x => x.formatYQ());
+            getSuggestionFor(result, search, now.startOfWeek().addDays(1), "..week.tuesday.year", x => x.formatY());
+            getSuggestionFor(result, search, now.startOfWeek().addDays(2), "..week.wednesday.date", x => x.formatYMD());
+            getSuggestionFor(result, search, now.startOfWeek().addDays(2), "..week.wednesday.month", x => x.formatYM());
+            getSuggestionFor(result, search, now.startOfWeek().addDays(2), "..week.wednesday.quarter", x => x.formatYQ());
+            getSuggestionFor(result, search, now.startOfWeek().addDays(2), "..week.wednesday.year", x => x.formatY());
+            getSuggestionFor(result, search, now.startOfWeek().addDays(3), "..week.thursday.date", x => x.formatYMD());
+            getSuggestionFor(result, search, now.startOfWeek().addDays(3), "..week.thursday.month", x => x.formatYM());
+            getSuggestionFor(result, search, now.startOfWeek().addDays(3), "..week.thursday.quarter", x => x.formatYQ());
+            getSuggestionFor(result, search, now.startOfWeek().addDays(3), "..week.thursday.year", x => x.formatY());
+            getSuggestionFor(result, search, now.startOfWeek().addDays(4), "..week.friday.date", x => x.formatYMD());
+            getSuggestionFor(result, search, now.startOfWeek().addDays(4), "..week.friday.month", x => x.formatYM());
+            getSuggestionFor(result, search, now.startOfWeek().addDays(4), "..week.friday.quarter", x => x.formatYQ());
+            getSuggestionFor(result, search, now.startOfWeek().addDays(4), "..week.friday.year", x => x.formatY());
+            getSuggestionFor(result, search, now.startOfWeek().addDays(5), "..week.saturday.date", x => x.formatYMD());
+            getSuggestionFor(result, search, now.startOfWeek().addDays(5), "..week.saturday.month", x => x.formatYM());
+            getSuggestionFor(result, search, now.startOfWeek().addDays(5), "..week.saturday.quarter", x => x.formatYQ());
+            getSuggestionFor(result, search, now.startOfWeek().addDays(5), "..week.saturday.year", x => x.formatY());
+            getSuggestionFor(result, search, now.startOfWeek().addDays(6), "..week.sunday.date", x => x.formatYMD());
+            getSuggestionFor(result, search, now.startOfWeek().addDays(6), "..week.sunday.month", x => x.formatYM());
+            getSuggestionFor(result, search, now.startOfWeek().addDays(6), "..week.sunday.quarter", x => x.formatYQ());
+            getSuggestionFor(result, search, now.startOfWeek().addDays(6), "..week.sunday.year", x => x.formatY());
+
+            getSuggestionFor(result, search, now.startOfMonth(), "..month.firstDay.date", x => x.formatYMD());
+            getSuggestionFor(result, search, now.startOfMonth(), "..month.firstDay.week", x => x.formatYW());
+            getSuggestionFor(result, search, now.startOfMonth(), "..month.firstDay.month", x => x.formatYM());
+            getSuggestionFor(result, search, now.startOfMonth(), "..month.firstDay.quarter", x => x.formatYQ());
+            getSuggestionFor(result, search, now.startOfMonth(), "..month.firstDay.year", x => x.formatY());
+            getSuggestionFor(result, search, now.startOfQuarter(), "..quarter.firstDay.date", x => x.formatYMD());
+            getSuggestionFor(result, search, now.startOfQuarter(), "..quarter.firstDay.week", x => x.formatYW());
+            getSuggestionFor(result, search, now.startOfQuarter(), "..quarter.firstDay.month", x => x.formatYM());
+            getSuggestionFor(result, search, now.startOfQuarter(), "..quarter.firstDay.quarter", x => x.formatYQ());
+            getSuggestionFor(result, search, now.startOfQuarter(), "..quarter.firstDay.year", x => x.formatY());
+            getSuggestionFor(result, search, now.startOfYear(), "..year.firstDay.date", x => x.formatYMD());
+            getSuggestionFor(result, search, now.startOfYear(), "..year.firstDay.week", x => x.formatYW());
+            getSuggestionFor(result, search, now.startOfYear(), "..year.firstDay.month", x => x.formatYM());
+            getSuggestionFor(result, search, now.startOfYear(), "..year.firstDay.quarter", x => x.formatYQ());
+            getSuggestionFor(result, search, now.startOfYear(), "..year.firstDay.year", x => x.formatY());
+            getSuggestionFor(result, search, now.endOfMonth(), "..month.lastDay.date", x => x.formatYMD());
+            getSuggestionFor(result, search, now.endOfMonth(), "..month.lastDay.week", x => x.formatYW());
+            getSuggestionFor(result, search, now.endOfMonth(), "..month.lastDay.month", x => x.formatYM());
+            getSuggestionFor(result, search, now.endOfMonth(), "..month.lastDay.quarter", x => x.formatYQ());
+            getSuggestionFor(result, search, now.endOfMonth(), "..month.lastDay.year", x => x.formatY());
+            getSuggestionFor(result, search, now.endOfQuarter(), "..quarter.lastDay.date", x => x.formatYMD());
+            getSuggestionFor(result, search, now.endOfQuarter(), "..quarter.lastDay.week", x => x.formatYW());
+            getSuggestionFor(result, search, now.endOfQuarter(), "..quarter.lastDay.month", x => x.formatYM());
+            getSuggestionFor(result, search, now.endOfQuarter(), "..quarter.lastDay.quarter", x => x.formatYQ());
+            getSuggestionFor(result, search, now.endOfQuarter(), "..quarter.lastDay.year", x => x.formatY());
+            getSuggestionFor(result, search, now.endOfYear(), "..year.lastDay.date", x => x.formatYMD());
+            getSuggestionFor(result, search, now.endOfYear(), "..year.lastDay.month", x => x.formatYM());
+            getSuggestionFor(result, search, now.endOfYear(), "..year.lastDay.week", x => x.formatYW());
+            getSuggestionFor(result, search, now.endOfYear(), "..year.lastDay.quarter", x => x.formatYQ());
+            getSuggestionFor(result, search, now.endOfYear(), "..year.lastDay.year", x => x.formatY());
 
             return result;
         }
@@ -1045,10 +1466,12 @@
         function getSuggestionFor(result, search, now, baseKeyword, formatMethod) {
 
             addSuggestion(result, search, `${baseKeyword}`, formatMethod(now));
-            addSuggestion(result, search, `${baseKeyword}-`);
-            addSuggestion(result, search, `${baseKeyword}+`);
-
-            const pattern = `^${baseKeyword}([+-])([0-9]+)`;
+            if (baseKeyword.toLowerCase() === search.toLowerCase()) {
+                addSuggestion(result, search, `${baseKeyword}-`);
+                addSuggestion(result, search, `${baseKeyword}+`);
+            }
+            
+            const pattern = `^${escapeRegExp(baseKeyword) }([+-])([0-9]+)`;
             const match = search.match(pattern);
             if (!match) return;
 
@@ -1158,8 +1581,8 @@
         function renderPopup(target) {
             popup.innerHTML = currentMatches.map((m, i) =>
                 `<div class="suggestion-item ${i === selectedIndex ? 'active' : ''}" onclick="applySuggestion('${m.code}', '${m.value}')">
-                                                                <strong>${m.code}</strong><br><small>${m.value.substring(0, 20)}</small>
-                                                            </div>`
+                                    <strong>${m.code}</strong><br><small>${m.value.substring(0, 20)}</small>
+                                </div>`
             ).join('');
 
             popup.style.display = 'block';
@@ -1417,23 +1840,7 @@
             return d;
         };
 
-        // --- WEEK (Sunday Start) ---
         Date.prototype.startOfWeek = function () {
-            const d = this.startOfDay();
-            const day = d.getDay();
-            d.setDate(d.getDate() - day);
-            return d;
-        };
-
-        Date.prototype.endOfWeek = function () {
-            const d = this.startOfWeek();
-            d.setDate(d.getDate() + 6);
-            d.setHours(23, 59, 59, 999);
-            return d;
-        };
-
-        // --- WORK WEEK (Monday - Friday) ---
-        Date.prototype.startOfWorkWeek = function () {
             const d = this.startOfDay();
             const day = d.getDay();
             const diff = (day === 0 ? -6 : 1) - day; // Adjust to previous Monday
@@ -1441,9 +1848,9 @@
             return d;
         };
 
-        Date.prototype.endOfWorkWeek = function () {
-            const d = this.startOfWorkWeek();
-            d.setDate(d.getDate() + 4); // Friday
+        Date.prototype.endOfWeek = function () {
+            const d = this.startOfWeek();
+            d.setDate(d.getDate() + 7);
             d.setHours(23, 59, 59, 999);
             return d;
         };
