@@ -56,6 +56,13 @@ Create your own shortcuts while you write:
 
 Just type to trigger expansion tools, type `..` for system expansion.
 
+### ⌨️ Keyboard Cheat Sheet
+| Shortcut | Action |
+| --- | --- |
+| `Esc` | Focus / clear search bar |
+| `Ctrl+↑/↓` | Navigate to note up / down |
+| `Ctrl+C` | Copy full note (when no text is selected) |
+
 ---
 
 ### ⚡ System shortcuts (built-in)
@@ -73,7 +80,7 @@ Just write a note like:
 ```
 ..brb Be right back
 ```
-Now typing `brb` shows it as a suggestion.
+Now typing `br` opens a suggestion menu that will display every expansion that starts with `br`.
 
 ---
 
@@ -182,3 +189,66 @@ So I built something that assumes:
 ```
 You will never organize perfectly - so retrieval should be instant.
 ```
+---
+
+## HowTo: Sync with JSONBin
+
+Copy JSONBin info into dotNote
+- Open dotNote either locally or through the live version
+- Open the side menu → `Cloud Sync` → `Show Config`
+- In the dropdown `Service Preset` → select `JSONBin.io`
+
+You will see the following information:
+
+```
+VERB: `PUT`
+ENDPOINT: `https://api.jsonbin.io/v3/b/<YOUR_BIN_ID>`
+HEADERS:
+Content-Type: application/json
+X-Master-Key: <API_KEY>
+X-Access-Key: <ACCESS_KEY>
+DATA PATH: `record`
+```
+
+The values are provided by JSONBin
+
+**Create a free JSONBin account**
+
+Create a free JSONBin account
+- Navigate to https://jsonbin.io
+- Create a **free** account using any sign up method
+
+
+**Create a bin to store your notes**
+- `https://api.jsonbin.io/v3/b/<YOUR_BIN_ID>`:
+- [JSONBin](https://jsonbin.io) → `BINS` → `Create a Bin`
+	- `⚙️` → change the name to `dotNote`
+	- In the JSON section, write `[{}]`
+	- Click `Save Bin`
+	- In the bins, click the bin you just created and copy it's ID
+- In dotNote, replace `<YOUR_BIN_ID>` with the ID you copied
+
+**Configure API keys**
+***Note:** API Keys are stored in the browser's LocalStorage, and only sent over HTTPS to JSONBin*
+```
+Content-Type: application/json
+X-Master-Key: <API_KEY>
+X-Access-Key: <ACCESS_KEY>
+```
+- [JSONBin](https://jsonbin.io) → `API KEYS`
+	- In dotNote, replace `<API_KEY>` with the value under `X-Master-Key`
+
+- [JSONBin](https://jsonbin.io) → `API KEYS` → `Create Access Key`
+	- Write `dotNote` in the `NAME` field
+	- Check the `UPDATE` checkbox
+	- Click `Save Access Key`
+	- In dotNote, replace `<ACCESS_KEY>` with the value under `X-Access-Key` with name `DOTNOTE`
+
+**Configure Data Path**
+- In dotNote, leave the field `DATA PATH` set to `record`
+*Technically, it is the path of the data in the JSON returned by JSONBin*
+
+**Synchronize with JSONBin**
+- Click the `↑` button to send everything to JSONBin
+- Click the `↓` button to receive everything from JSONBin
+**Note:** The app will ask you to confirm overriding when downloading but there is no check for version at the moment
