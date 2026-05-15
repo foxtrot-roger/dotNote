@@ -1,113 +1,184 @@
-# dotNote
-`type, find, expand.`
+## dotNote
 
-A minimalist, keyboard-first, note system built around full-text search and text expansion.
+**A keyboard-first, local-first notebook with instant search + text expansion.**
+```
+Write everything. Organize nothing. Find it instantly.
+```
 
 ![Alt Text: dotNote in action](dotNote.gif)
 
-## Live Access
-**dotNote** is a single-file application, it works entirely offline, however, it is also availble online: **[https://foxtrot-roger.github.io/dotNote/index.html](https://foxtrot-roger.github.io/dotNote/index.html)**
+---
+
+## 🚀 Try it now
+👉 Live demo: **[https://foxtrot-roger.github.io/dotNote/index.html](https://foxtrot-roger.github.io/dotNote/index.html)**
+
+Works fully offline. No install. No account. No setup.
 
 **Take it with you:** Right-click the link above and select `Save Link As`, then open the downloaded page.
 
-⚠️ Do not save the webpage (`Ctrl+S`) from the browser as the page is generated on the fly.
-⚠️ Beware that if you move or rename the downloaded file, you need to export your data first and import it after opening the new file. If you did and your data is "gone", just move the html file back to where it was (path and name) and reopen it, your data is there, export then rename.
+---
 
-## TLDR; How it works
+## 🧠 What is dotNote?
 
-You type → **dotNote** expands:
-- system functions start with `..`
-- you can extend: create a note that starts with  `..`
-- everything is stored in the browser's IndexedDB → your data doesn't leave your browser
-- for ease of use, you can synchronise with JSONBin (or similar provider, I am not affiliated with any)
+dotNote is a minimalist notebook that replaces folders and structure with:
+- full-text search
+- keyboard-driven workflows
+- custom text shortcuts
 
-## 🚀 The Philosophy
+Instead of organizing notes, you just write them, and find them later instantly.
 
-No folders, no schemas, only `..yourStenos`.
+Think of it as: `Ctrl+F for your brain` + `text expansion`
 
-- **~~organize~~ → find** : searching is faster than filing
-- **~~structure~~ → syntax** : plain text is the ultimate data format
-- **~~datamodel~~ → your conventions** : you define the rules, not the app
+---
 
-## Features
-- filter notes by word order
-- special notes starting with `..` are stenos
-- stenos will show up suggestions when typing
-- the search bar acts as note creation input
-- to search stenos start the search with `..`
+## ⚡ The core idea
 
-When you start the search with `..` dotNote will hide all your note and show you all your stenos, the data is not gone, it's how you change between defining stenos and creating notes.
+Most note apps force you to decide *where things belong*.
+dotNote removes that step completely:
 
-### Stenos
+No folders
+No tagging system required
+No upfront structure
+Just write → search → reuse
 
-- stenos names can be overloaded
-- the steno format is "..keyword replacement" and is visible as "keyword"
-- eg. "..my_keyword my custom text" → the user types "my" is presented with "my_keyword" → inserts "my custom text"
+Your brain already knows how to find things. dotNote leans into that.
 
-You can create custom stenos just by writing a note:
-- **Create a note:** `..todo !todo ..date :` 
-    - *Result:* Typing `..todo` will expand to `!todo 2026-05-09 :`
-- **Create a note:** `..jcc Jean-Claude Convenant`
-    - *Result:* Typing `..jcc` will expand to `Jean-Claude Convenant`
+---
 
-⚠️ dotNote intentionally does not support expansion of stenos recursively.
-Given the stenos :
-- `..inner ..date INNER`
-- `..outer ..inner ..time`
+## ✨ Key features
+### 🔎 Search-first notes
+Everything is instantly searchable with fuzzy matching.
+### ⌨️ Text expansion (“stenos”)
+Create your own shortcuts while you write:
+- `todo` → !todo 2026-05-15
+- `jcc` → Jean-Claude Convenant
+- `..date+3week` → future date
 
-When typing `..outer` dotNote will expand to `..inner 14:05`
+Just type to trigger expansion tools, type `..` for system expansion.
 
-### System functions
+---
 
-dotNote provides system functions for dynamic things, they all start with `..`:
-- `..now` → `2026-05-09 13:19` (Current date and time)
-- `..date` → `2026-05-09` (Today's date)
-- `..time` → `13:19` (Current time)
-- `..tomorrow` → `2026-05-10` (Tomorrow's date and time)
-- `..` → Opens the expansion menu to show you what's possible.
+### ⚡ System shortcuts (built-in)
+- `..date` → today’s date
+- `..time` → current time
+- `..now` → full timestamp
+- `..tomorrow` → next day
+- `..date+3days` → date in 3 days
 
-### Import / export
-- "cloud" synchronization through webhooks
-- import file and replace all
-- import file and update notes with matching keys
-- export all
-- export notes
-- export vocabulary
-- download standalone
+---
 
-### For mobile
-- search bar : insert steno button `..`
-- search bar : create button "+"
-- export prompts for share with other apps 
-
-## Example stenos
-``` 
-..freeze !freeze ..today
-!followup ..date+3month
-!followup ..date+6month
-!purge ..date+9month
+### 🧩 Create your own shortcuts
+You don’t configure anything.
+Just write a note like:
 ```
+..brb Be right back
+```
+Now typing `brb` shows it as a suggestion.
 
-```
-..funw !followup ..week+1week
-```
+---
 
-```
-..shout !shout
-!followup ..date
-!followup ..date+1day
-!followup ..date+2day
-!followup ..date+3day
-!followup ..date+4day
-!followup ..date+5day
-!followup ..date+6day
-!followup ..date+7day
-```
+### 🧠 Search + write in the same bar
+
+The search bar lets you create notes.
+- type to search notes
+- press enter to create
+- type `..` to manage shortcuts
+
+No mode switching. No context switching.
+
+---
+
+### 💾 Fully local-first
+- Stored in browser IndexedDB
+- Works offline
+- Nothing is sent anywhere by default
+
+Optional sync available via JSONBin (or similar services).
+
+---
+
+🔄 Example workflow
+
+You’re working all day and dumping notes quickly:
 
 ```
-..wait !waiting
-!lastnews ..today
-!followup ..date+3week
-!burn ..date+4week
-!purge ..date+5week
+meeting ideas
+bug: login broken
+follow up with client
+random thought about architecture
+```
+
+Later you type:
+```
+follow
+```
+and instantly everything relevant appears—no folders, no tagging, no sorting.
+
+---
+
+### 🧭 Philosophy
+
+dotNote is built on a simple idea:
+
+```
+Don’t organize your thoughts. Retrieve them faster instead.
+```
+- ~~structure~~ → search
+- ~~folders~~ → queries
+- ~~schemas~~ → personal conventions
+
+You decide the meaning of your system.
+
+---
+
+### ⚙️ Advanced features
+- Overloadable shortcuts (`stenos`)
+- Non-recursive expansion (predictable behavior)
+- Import / export (JSON)
+- Optional sync via webhooks / external storage
+- Mobile-friendly controls
+
+---
+
+### 📱 Mobile ready
+- quick insert `..` shortcuts
+- fast add button
+- export/share support
+
+---
+
+### ⚠️ Important note
+
+dotNote is intentionally minimal.
+
+It does not try to be:
+- a knowledge graph
+- a task manager
+- a workspace system
+
+It is just:
+```
+a fast way to write things down and get them back later
+```
+
+---
+
+### 📦 Download / self-host
+
+Single-file app:
+👉 https://foxtrot-roger.github.io/dotNote/index.html
+Right-click → “Save as” → run locally.
+
+---
+
+### 💬 Why I built this
+
+I kept losing small pieces of information in:
+- too many tab
+- scattered notes
+- over-structured systems
+
+So I built something that assumes:
+```
+You will never organize perfectly - so retrieval should be instant.
 ```
