@@ -434,7 +434,7 @@
             }
 
 
-/* sync styles */
+        /* sync styles */
         .sync-card {
             background: var(--hover);
             border: 1px solid var(--border);
@@ -442,6 +442,7 @@
             padding: 12px;
             margin-bottom: 10px;
         }
+
             .sync-card label {
                 border: none;
                 padding: 0;
@@ -1366,7 +1367,7 @@
 
             return result;
         }
-        async function getSystemSuggestions(query, start = 0, end = query.length) {
+        function getSystemSuggestions(query, start = 0, end = query.length) {
             const search = query.substring(start, end);
 
             const now = new Date();
@@ -1376,73 +1377,26 @@
             addSuggestion(result, search, "..yesterday", now.addDays(-1).formatYMD());
             addSuggestion(result, search, "..tomorrow", now.addDays(1).formatYMD());
 
-            getSuggestionFor(result, search, now, "..now", x => x.formatYMDHM());
-            getSuggestionFor(result, search, now, "..time", x => x.formatHM());
-            getSuggestionFor(result, search, now, "..date", x => x.formatYMD());
-            getSuggestionFor(result, search, now, "..week", x => x.formatYW());
-            getSuggestionFor(result, search, now, "..month", x => x.formatYM());
-            getSuggestionFor(result, search, now, "..quarter", x => x.formatYQ());
-            getSuggestionFor(result, search, now, "..year", x => x.formatY());
+            getSuggestionFor2(result, search, now, "..now", 'datetime');
+            getSuggestionFor2(result, search, now, "..time", 'time');
+            getSuggestionFor2(result, search, now.startOfDay(), "..date", 'date');
+            getSuggestionFor2(result, search, now.startOfWeek(), "..week", 'week');
+            getSuggestionFor2(result, search, now.startOfMonth(), "..month", 'month');
+            getSuggestionFor2(result, search, now.startOfQuarter(), "..quarter", 'quarter');
+            getSuggestionFor2(result, search, now.startOfYear(), "..year", 'year');
 
-            getSuggestionFor(result, search, now.startOfWeek().addDays(0), "..week.monday.date", x => x.formatYMD());
-            getSuggestionFor(result, search, now.startOfWeek().addDays(0), "..week.monday.month", x => x.formatYM());
-            getSuggestionFor(result, search, now.startOfWeek().addDays(0), "..week.monday.quarter", x => x.formatYQ());
-            getSuggestionFor(result, search, now.startOfWeek().addDays(0), "..week.monday.year", x => x.formatY());
-            getSuggestionFor(result, search, now.startOfWeek().addDays(1), "..week.tuesday.date", x => x.formatYMD());
-            getSuggestionFor(result, search, now.startOfWeek().addDays(1), "..week.tuesday.month", x => x.formatYM());
-            getSuggestionFor(result, search, now.startOfWeek().addDays(1), "..week.tuesday.quarter", x => x.formatYQ());
-            getSuggestionFor(result, search, now.startOfWeek().addDays(1), "..week.tuesday.year", x => x.formatY());
-            getSuggestionFor(result, search, now.startOfWeek().addDays(2), "..week.wednesday.date", x => x.formatYMD());
-            getSuggestionFor(result, search, now.startOfWeek().addDays(2), "..week.wednesday.month", x => x.formatYM());
-            getSuggestionFor(result, search, now.startOfWeek().addDays(2), "..week.wednesday.quarter", x => x.formatYQ());
-            getSuggestionFor(result, search, now.startOfWeek().addDays(2), "..week.wednesday.year", x => x.formatY());
-            getSuggestionFor(result, search, now.startOfWeek().addDays(3), "..week.thursday.date", x => x.formatYMD());
-            getSuggestionFor(result, search, now.startOfWeek().addDays(3), "..week.thursday.month", x => x.formatYM());
-            getSuggestionFor(result, search, now.startOfWeek().addDays(3), "..week.thursday.quarter", x => x.formatYQ());
-            getSuggestionFor(result, search, now.startOfWeek().addDays(3), "..week.thursday.year", x => x.formatY());
-            getSuggestionFor(result, search, now.startOfWeek().addDays(4), "..week.friday.date", x => x.formatYMD());
-            getSuggestionFor(result, search, now.startOfWeek().addDays(4), "..week.friday.month", x => x.formatYM());
-            getSuggestionFor(result, search, now.startOfWeek().addDays(4), "..week.friday.quarter", x => x.formatYQ());
-            getSuggestionFor(result, search, now.startOfWeek().addDays(4), "..week.friday.year", x => x.formatY());
-            getSuggestionFor(result, search, now.startOfWeek().addDays(5), "..week.saturday.date", x => x.formatYMD());
-            getSuggestionFor(result, search, now.startOfWeek().addDays(5), "..week.saturday.month", x => x.formatYM());
-            getSuggestionFor(result, search, now.startOfWeek().addDays(5), "..week.saturday.quarter", x => x.formatYQ());
-            getSuggestionFor(result, search, now.startOfWeek().addDays(5), "..week.saturday.year", x => x.formatY());
-            getSuggestionFor(result, search, now.startOfWeek().addDays(6), "..week.sunday.date", x => x.formatYMD());
-            getSuggestionFor(result, search, now.startOfWeek().addDays(6), "..week.sunday.month", x => x.formatYM());
-            getSuggestionFor(result, search, now.startOfWeek().addDays(6), "..week.sunday.quarter", x => x.formatYQ());
-            getSuggestionFor(result, search, now.startOfWeek().addDays(6), "..week.sunday.year", x => x.formatY());
+            const daysOfWeek = ["sunday", "monday", "tuesday", "wednesday", "thursday", "friday", "saturday"];
+            daysOfWeek.forEach((dayName, index) => {
+                getSuggestionFor2(result, search, now.startOfWeek().addDays(index), `..${dayName}`, 'date');
+            });
 
-            getSuggestionFor(result, search, now.startOfMonth(), "..month.firstDay.date", x => x.formatYMD());
-            getSuggestionFor(result, search, now.startOfMonth(), "..month.firstDay.week", x => x.formatYW());
-            getSuggestionFor(result, search, now.startOfMonth(), "..month.firstDay.month", x => x.formatYM());
-            getSuggestionFor(result, search, now.startOfMonth(), "..month.firstDay.quarter", x => x.formatYQ());
-            getSuggestionFor(result, search, now.startOfMonth(), "..month.firstDay.year", x => x.formatY());
-            getSuggestionFor(result, search, now.startOfQuarter(), "..quarter.firstDay.date", x => x.formatYMD());
-            getSuggestionFor(result, search, now.startOfQuarter(), "..quarter.firstDay.week", x => x.formatYW());
-            getSuggestionFor(result, search, now.startOfQuarter(), "..quarter.firstDay.month", x => x.formatYM());
-            getSuggestionFor(result, search, now.startOfQuarter(), "..quarter.firstDay.quarter", x => x.formatYQ());
-            getSuggestionFor(result, search, now.startOfQuarter(), "..quarter.firstDay.year", x => x.formatY());
-            getSuggestionFor(result, search, now.startOfYear(), "..year.firstDay.date", x => x.formatYMD());
-            getSuggestionFor(result, search, now.startOfYear(), "..year.firstDay.week", x => x.formatYW());
-            getSuggestionFor(result, search, now.startOfYear(), "..year.firstDay.month", x => x.formatYM());
-            getSuggestionFor(result, search, now.startOfYear(), "..year.firstDay.quarter", x => x.formatYQ());
-            getSuggestionFor(result, search, now.startOfYear(), "..year.firstDay.year", x => x.formatY());
-            getSuggestionFor(result, search, now.endOfMonth(), "..month.lastDay.date", x => x.formatYMD());
-            getSuggestionFor(result, search, now.endOfMonth(), "..month.lastDay.week", x => x.formatYW());
-            getSuggestionFor(result, search, now.endOfMonth(), "..month.lastDay.month", x => x.formatYM());
-            getSuggestionFor(result, search, now.endOfMonth(), "..month.lastDay.quarter", x => x.formatYQ());
-            getSuggestionFor(result, search, now.endOfMonth(), "..month.lastDay.year", x => x.formatY());
-            getSuggestionFor(result, search, now.endOfQuarter(), "..quarter.lastDay.date", x => x.formatYMD());
-            getSuggestionFor(result, search, now.endOfQuarter(), "..quarter.lastDay.week", x => x.formatYW());
-            getSuggestionFor(result, search, now.endOfQuarter(), "..quarter.lastDay.month", x => x.formatYM());
-            getSuggestionFor(result, search, now.endOfQuarter(), "..quarter.lastDay.quarter", x => x.formatYQ());
-            getSuggestionFor(result, search, now.endOfQuarter(), "..quarter.lastDay.year", x => x.formatY());
-            getSuggestionFor(result, search, now.endOfYear(), "..year.lastDay.date", x => x.formatYMD());
-            getSuggestionFor(result, search, now.endOfYear(), "..year.lastDay.month", x => x.formatYM());
-            getSuggestionFor(result, search, now.endOfYear(), "..year.lastDay.week", x => x.formatYW());
-            getSuggestionFor(result, search, now.endOfYear(), "..year.lastDay.quarter", x => x.formatYQ());
-            getSuggestionFor(result, search, now.endOfYear(), "..year.lastDay.year", x => x.formatY());
+            const months = [
+                "January", "February", "March", "April", "May", "June",
+                "July", "August", "September", "October", "November", "December"
+            ];
+            months.forEach((monthName, index) => {
+                getSuggestionFor2(result, search, now.startOfYear().addMonths(index), `..${monthName}`, 'month');
+            });
 
             return result;
         }
@@ -1458,36 +1412,287 @@
                 result.push({ keyword: baseKeyword, replacement: baseKeyword });
             }
         }
-        function getSuggestionFor(result, search, now, baseKeyword, formatMethod) {
+        function getSuggestionFor2(result, search, now, baseKeyword, baseFormat) {
+            let includeSelf = false;
+            const units = {
+                second: (x, n) => x.addSeconds(n),
+                minute: (x, n) => x.addMinutes(n),
+                hour: (x, n) => x.addHours(n),
+                day: (x, n) => x.addDays(n),
+                week: (x, n) => x.addWeeks(n),
+                month: (x, n) => x.addMonths(n),
+                quarter: (x, n) => x.addQuarters(n),
+                year: (x, n) => x.addYears(n),
 
-            addSuggestion(result, search, `${baseKeyword}`, formatMethod(now));
-            if (baseKeyword.toLowerCase() === search.toLowerCase()) {
-                addSuggestion(result, search, `${baseKeyword}-`);
-                addSuggestion(result, search, `${baseKeyword}+`);
+                monday: (x, n) => n >= 0
+                    ? x.nextWeekDay(1, includeSelf).addDays((n - 1) * 7)
+                    : x.prevWeekDay(1).addDays((n + 1) * 7),
+                tuesday: (x, n) => n >= 0
+                    ? x.nextWeekDay(2, includeSelf).addDays((n - 1) * 7)
+                    : x.prevWeekDay(2).addDays((n + 1) * 7),
+                wednesday: (x, n) => n >= 0
+                    ? x.nextWeekDay(3, includeSelf).addDays((n - 1) * 7)
+                    : x.prevWeekDay(3).addDays((n + 1) * 7),
+                thursday: (x, n) => n >= 0
+                    ? x.nextWeekDay(4, includeSelf).addDays((n - 1) * 7)
+                    : x.prevWeekDay(4).addDays((n + 1) * 7),
+                friday: (x, n) => n >= 0
+                    ? x.nextWeekDay(5, includeSelf).addDays((n - 1) * 7)
+                    : x.prevWeekDay(5).addDays((n + 1) * 7),
+                saturday: (x, n) => n >= 0
+                    ? x.nextWeekDay(6, includeSelf).addDays((n - 1) * 7)
+                    : x.prevWeekDay(6).addDays((n + 1) * 7),
+                sunday: (x, n) => n >= 0
+                    ? x.nextWeekDay(0, includeSelf).addDays((n - 1) * 7)
+                    : x.prevWeekDay(0).addDays((n + 1) * 7),
+
+                january: (x, n) => n >= 0
+                    ? x.nextMonth(1, includeSelf).addMonths((n - 1) * 12)
+                    : x.prevMonth(1).addMonths((n + 1) * 12),
+                february: (x, n) => n >= 0
+                    ? x.nextMonth(2, includeSelf).addMonths((n - 1) * 12)
+                    : x.prevMonth(2).addMonths((n + 1) * 12),
+                march: (x, n) => n >= 0
+                    ? x.nextMonth(3, includeSelf).addMonths((n - 1) * 12)
+                    : x.prevMonth(3).addMonths((n + 1) * 12),
+                april: (x, n) => n >= 0
+                    ? x.nextMonth(4, includeSelf).addMonths((n - 1) * 12)
+                    : x.prevMonth(4).addMonths((n + 1) * 12),
+                may: (x, n) => n >= 0
+                    ? x.nextMonth(5, includeSelf).addMonths((n - 1) * 12)
+                    : x.prevMonth(5).addMonths((n + 1) * 12),
+                june: (x, n) => n >= 0
+                    ? x.nextMonth(6, includeSelf).addMonths((n - 1) * 12)
+                    : x.prevMonth(6).addMonths((n + 1) * 12),
+                july: (x, n) => n >= 0
+                    ? x.nextMonth(7, includeSelf).addMonths((n - 1) * 12)
+                    : x.prevMonth(7).addMonths((n + 1) * 12),
+                august: (x, n) => n >= 0
+                    ? x.nextMonth(8, includeSelf).addMonths((n - 1) * 12)
+                    : x.prevMonth(8).addMonths((n + 1) * 12),
+                september: (x, n) => n >= 0
+                    ? x.nextMonth(9, includeSelf).addMonths((n - 1) * 12)
+                    : x.prevMonth(9).addMonths((n + 1) * 12),
+                october: (x, n) => n >= 0
+                    ? x.nextMonth(10, includeSelf).addMonths((n - 1) * 12)
+                    : x.prevMonth(10).addMonths((n + 1) * 12),
+                november: (x, n) => n >= 0
+                    ? x.nextMonth(11, includeSelf).addMonths((n - 1) * 12)
+                    : x.prevMonth(11).addMonths((n + 1) * 12),
+                december: (x, n) => n >= 0
+                    ? x.nextMonth(12, includeSelf).addMonths((n - 1) * 12)
+                    : x.prevMonth(12).addMonths((n + 1) * 12)
+            };
+
+            const formats = {
+                datetime: x => x.formatYMDHM(),
+                time: x => x.formatHM(),
+                date: x => x.formatYMD(),
+                week: x => x.formatYW(),
+                month: x => x.formatYM(),
+                quarter: x => x.formatYQ(),
+                year: x => x.formatY(),
+            };
+
+            const unitOf = {
+                time: 'time',
+                second: 'time',
+                minute: 'time',
+                hour: 'time',
+                day: 'date',
+                week: 'week',
+                date: 'date',
+                month: 'month',
+                quarter: 'quarter',
+                year: 'year',
+
+                monday: 'date',
+                tuesday: 'date',
+                wednesday: 'date',
+                thursday: 'date',
+                friday: 'date',
+                saturday: 'date',
+                sunday: 'date',
+
+                january: 'month',
+                february: 'month',
+                march: 'month',
+                april: 'month',
+                may: 'month',
+                june: 'month',
+                july: 'month',
+                august: 'month',
+                september: 'month',
+                october: 'month',
+                november: 'month',
+                december: 'month'
+            };
+
+            const updateDefaultFormat = (prev, next) => {
+
+                if (prev === next)
+                    return next;
+
+                if (prev == 'datetime' || next == 'datetime')
+                    return 'datetime';
+
+                const dateFormats = ['date', 'week', 'month', 'quarter', 'year'];
+                const timeFormats = ['time'];
+
+                // date + time
+                if (dateFormats.includes(prev) && timeFormats.includes(next))
+                    return 'datetime';
+
+                // time + date
+                if (dateFormats.includes(next) && timeFormats.includes(prev))
+                    return 'datetime';
+
+                // date only -> return the most specific
+                for (var i = 0; i < dateFormats.length; i++) {
+                    var current = dateFormats[i];
+
+                    if (current == prev || current == next)
+                        return current;
+                }
+
+                return next;
+            };
+
+            // user typed exact match -> show autocomplete with replaced value
+            if (search === baseKeyword) {
+                const u = unitOf[baseFormat];
+                const formattedNow = formats[u](now);
+
+                result.push({ keyword: baseKeyword, replacement: formattedNow });
+                result.push({ keyword: `${baseKeyword}.{format}`, replacement: `${baseKeyword}.` });
+                result.push({ keyword: `${baseKeyword}+{duration}`, replacement: `${baseKeyword}.` });
+                result.push({ keyword: `${baseKeyword}-{duration}`, replacement: `${baseKeyword}-` });
             }
-            
-            const pattern = `^${escapeRegExp(baseKeyword) }([+-])([0-9]+)`;
-            const match = search.match(pattern);
-            if (!match) return;
+            // user is typing the start of the keywords -> show autocomplete that keyword only
+            else if (baseKeyword.startsWith(search)) {
+                result.push({ keyword: baseKeyword, replacement: baseKeyword });
+                return;
+            }
+            // user typed something else
+            else if (!search.startsWith(baseKeyword)) {
+                return;
+            }
 
-            let sign = '+';
-            if (match.length >= 1) sign = match[1];
+            const TOKEN_RULES = [
+                { type: 'BASE', regex: new RegExp(`^${escapeRegExp(baseKeyword)}`, 'i') },
+                { type: 'MODIFIER', regex: /^([+-])([0-9]*)([a-zA-Z]*)/ },
+                { type: 'SEPARATOR', regex: /^\./ },
+                { type: 'FORMAT', regex: /^([a-zA-Z]*)/ }
+            ];
 
-            let number = 1;
-            if (match.length >= 2) number = parseInt(match[2]);
+            let workingString = search;
+            const tokens = [];
+            const maxTokens = 100;
+            let fallbackSafety = 0;
+            while (workingString.length > 0 && fallbackSafety < maxTokens) {
+                fallbackSafety++;
+                let matched = false;
 
-            addSuggestion(result, search, `${baseKeyword}${sign}${number}second`, formatMethod(now.addSeconds(number)));
-            addSuggestion(result, search, `${baseKeyword}${sign}${number}minute`, formatMethod(now.addMinutes(number)));
-            addSuggestion(result, search, `${baseKeyword}${sign}${number}hour`, formatMethod(now.addHours(number)));
-            addSuggestion(result, search, `${baseKeyword}${sign}${number}day`, formatMethod(now.addDays(number)));
-            addSuggestion(result, search, `${baseKeyword}${sign}${number}week`, formatMethod(now.addWeeks(number)));
-            addSuggestion(result, search, `${baseKeyword}${sign}${number}month`, formatMethod(now.addMonths(number)));
-            addSuggestion(result, search, `${baseKeyword}${sign}${number}quarter`, formatMethod(now.addQuarters(number)));
-            addSuggestion(result, search, `${baseKeyword}${sign}${number}year`, formatMethod(now.addYears(number)));
+                for (const rule of TOKEN_RULES) {
+                    const match = workingString.match(rule.regex);
+                    if (match && workingString.indexOf(match[0]) === 0) {
+                        tokens.push({ type: rule.type, raw: match[0], groups: match.slice(1) });
+                        workingString = workingString.slice(match[0].length);
+                        matched = true;
+                        break;
+                    }
+                }
+
+                if (!matched)
+                    break;
+            }
+
+            // no token found or first token is not this keyword
+            if (tokens.length === 0 || tokens[0].type !== 'BASE')
+                return;
+
+            let calculatedDate = now;
+            let activeToken = tokens[tokens.length - 1];
+
+            // compute all complete modifiers first
+            tokens.forEach(token => {
+                if (token.type === 'MODIFIER') {
+                    const [sign, numStr, unitStr] = token.groups;
+                    const unitKey = unitStr.toLowerCase();
+                    if (units.hasOwnProperty(unitKey)) {
+                        const nextFormat = unitOf[unitKey];
+
+                        // trick so that ..week+monday is the monday of the current week
+                        includeSelf = ['week', 'month', 'quarter', 'year'].includes(nextFormat);
+
+                        let val = parseInt(numStr);
+                        if (!val) val = 1;
+                        else includeSelf = false;
+
+                        if (sign === '-') val = -val;
+
+                        calculatedDate = units[unitKey](calculatedDate, val);
+                        baseFormat = updateDefaultFormat(baseFormat, nextFormat);
+                    }
+                }
+            });
+
+            const hasSeparator = tokens.some(t => t.type === 'SEPARATOR');
+            const stablePrefix = tokens.slice(0, -1).map(t => t.raw).join('');
+
+            // user is typing a format (e.g., "now.da" or "now+1day.da")
+            if (hasSeparator) {
+                // If the last token is the format string itself, grab its content
+                const partialFormat = activeToken.type === 'FORMAT' ? activeToken.raw.toLowerCase() : '';
+                const formatPrefix = activeToken.type === 'FORMAT' ? stablePrefix : stablePrefix + activeToken.raw;
+
+                // the format is complete -> compute result as suggestion
+                if (formats.hasOwnProperty(partialFormat)) {
+                    result.push({ keyword: search, replacement: formats[partialFormat](calculatedDate) });
+                    return;
+                }
+
+                // incomplete format -> propose formats that start with the current search
+                Object.keys(formats)
+                    .filter(f => f.startsWith(partialFormat))
+                    .sort()
+                    .forEach(f => { result.push({ keyword: `${formatPrefix}${f}`, replacement: `${formatPrefix}${f}` }); });
+
+                return;
+            }
+
+            // user is typing modifiers (e.g., "now+2da" or "now+2day+1ho")
+            if (activeToken.type === 'MODIFIER') {
+                const [sign, numStr, unitStr] = activeToken.groups;
+                const unitKey = unitStr.toLowerCase();
+
+                // exact match on unit name
+                if (units.hasOwnProperty(unitKey)) {
+                    const u = baseFormat;
+                    const formattedNow = formats[u](calculatedDate);
+
+                    //result.push({ keyword: baseKeyword, replacement: formattedNow });
+                    result.push({ keyword: `${stablePrefix}${sign}${numStr}${unitKey}`, replacement: formattedNow });
+
+                    // suggest adding a dot
+                    result.push({ keyword: `${stablePrefix}${sign}${numStr}${unitKey}.{format}`, replacement: `${search}.` });
+                    result.push({ keyword: `${stablePrefix}${sign}${numStr}${unitKey}+{duration}`, replacement: `${search}+` });
+                    result.push({ keyword: `${stablePrefix}${sign}${numStr}${unitKey}-{duration}`, replacement: `${search}-` });
+                    return;
+                }
+
+                // Partial match on unit name -> autocomplete the unit
+                Object.keys(units)
+                    .filter(u => u.startsWith(unitKey))
+                    .sort()
+                    .forEach(u => {
+                        result.push({ keyword: `${stablePrefix}${sign}${numStr}${u}`, replacement: `${stablePrefix}${sign}${numStr}${u}` });
+                    });
+            }
         }
 
         async function getAllSuggestions(query, start = 0, end = query.length) {
-            const systemSuggestions = await getSystemSuggestions(query, start, end);
+            const systemSuggestions = getSystemSuggestions(query, start, end);
             const userSuggestions = await getUserSuggestions(query, start, end);
 
             // pass 1 : get system stenos to inject into user suggestions
@@ -1501,7 +1706,7 @@
                 const item = toResolve[index];
                 if (item in resolved) continue;
 
-                const matchingSuggestions = await getSystemSuggestions(item);
+                const matchingSuggestions = getSystemSuggestions(item);
                 const systemReplacement = matchingSuggestions.find(x => x.keyword == item);
                 if (systemReplacement)
                     resolved[item] = systemReplacement.replacement;
@@ -1576,8 +1781,8 @@
         function renderPopup(target) {
             popup.innerHTML = currentMatches.map((m, i) =>
                 `<div class="suggestion-item ${i === selectedIndex ? 'active' : ''}" onclick="applySuggestion('${m.code}', '${m.value}')">
-                                    <strong>${m.code}</strong><br><small>${m.value.substring(0, 20)}</small>
-                                </div>`
+                    <strong>${m.code}</strong><br><small>${m.value.substring(0, 20)}</small>
+                </div>`
             ).join('');
 
             popup.style.display = 'block';
@@ -1882,12 +2087,6 @@
         };
 
 
-
-        /**
-         * Returns the next occurrence of a specific weekday.
-         * @param {number} dayOfWeek - The target day (0 for Sunday, 1 for Monday, etc.)
-         * @param {boolean} includeToday - If true, and today is the target day, returns today.
-         */
         Date.prototype.nextWeekDay = function (dayOfWeek, includeToday = false) {
             var date = new Date(this.valueOf());
             var day = date.getDay();
@@ -1898,17 +2097,10 @@
                 diff += 7;
             }
 
-
             date.setDate(date.getDate() + diff);
             return date;
         };
 
-
-        /**
-         * Returns the previous occurrence of a specific weekday.
-         * @param {number} dayOfWeek - The target day (0 for Sunday, 1 for Monday, etc.)
-         * @param {boolean} includeToday - If true, and today is the target day, returns today.
-         */
         Date.prototype.prevWeekDay = function (dayOfWeek, includeToday = false) {
             var date = new Date(this.valueOf());
             var day = date.getDay();
@@ -1924,6 +2116,45 @@
             return date;
         };
 
+        Date.prototype.nextMonth = function (monthNumber, includeToday = false) {
+            var date = new Date(this.valueOf());
+            var currentMonth = date.getMonth(); // 0-11 (Jan-Dec)
+
+            // Calculate the difference in months
+            var targetMonth = monthNumber - 1;
+            var currentMonth = date.getMonth();
+
+            var diff = targetMonth - currentMonth;
+
+            // If the target month has passed, or it's this month and we don't want today's month
+            if (diff < 0 || (diff === 0 && !includeToday)) {
+                diff += 12;
+            }
+
+            date.setDate(1);
+            date.setMonth(date.getMonth() + diff);
+            return date;
+        };
+
+        Date.prototype.prevMonth = function (monthNumber, includeToday = false) {
+            var date = new Date(this.valueOf());
+            var currentMonth = date.getMonth(); // 0-11 (Jan-Dec)
+
+            // Calculate the difference in months
+            var targetMonth = monthNumber - 1;
+            var currentMonth = date.getMonth();
+
+            var diff = currentMonth - targetMonth;
+
+            // If the target month is ahead, or it's this month and we don't want today's month
+            if (diff < 0 || (diff === 0 && !includeToday)) {
+                diff += 12;
+            }
+
+            date.setDate(1);
+            date.setMonth(date.getMonth() - diff);
+            return date;
+        };
 
         // Helper to ensure leading zeros
         Date.prototype._pad = function (num) {
