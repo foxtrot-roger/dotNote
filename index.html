@@ -885,8 +885,13 @@
         }
 
         function autoExpand(el) {
+            const container = document.getElementById('notesList');
+            const currentScroll = container.scrollTop;
+
             el.style.height = 'auto';
             el.style.height = el.scrollHeight + 'px';
+
+            container.scrollTop = currentScroll;
         }
 
         async function addNote(text) {
