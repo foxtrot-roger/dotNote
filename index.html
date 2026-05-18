@@ -1061,6 +1061,9 @@
                 saveSyncSettings();
 
                 const notes = await getAllNotes();
+                if (!confirm(`Currently ${notes.length} notes. push them to remote?`))
+                    return;
+
                 const response = await fetch(url, {
                     method: verb,
                     headers: parseHeaders(),
