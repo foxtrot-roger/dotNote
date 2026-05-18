@@ -868,7 +868,7 @@
             class="note-content"
             spellcheck="false"
             onkeydown="handleNoteKeydown(event)"
-            oninput="autoExpand(this); handleNoteInput(event)"
+            oninput="autoExpand(this); handleNoteInput(event); handleUpdate(${note.id}, this.value)"
             onfocus="handleNoteFocus(event)"
             onblur="handleUpdate(${note.id}, this.value)">${note.text}</textarea>
     <div class="actions">
