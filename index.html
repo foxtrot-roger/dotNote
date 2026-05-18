@@ -864,17 +864,17 @@
             notesList.innerHTML = filteredNotes
                 .map(note => `
 <div class="note-item" data-id="${note.id}">
-                        <textarea
-                                class="note-content"
-                                spellcheck="false"
-                                onkeydown="handleNoteKeydown(event)"
-                                oninput="autoExpand(this); handleNoteInput(event)"
-                                onfocus="handleNoteFocus(event)"
-                                onblur="handleUpdate(${note.id}, this.value)">${note.text}</textarea>
-                        <div class="actions">
-                            <button class="btn-action" title="Copy" onclick="copyToClipboard(this.parentElement.previousElementSibling.value)">📋</button>
-                            <button class="btn-action" title="Delete" style="color:var(--danger)" onclick="deleteNote(${note.id})">✕</button>
-                        </div>
+    <textarea
+            class="note-content"
+            spellcheck="false"
+            onkeydown="handleNoteKeydown(event)"
+            oninput="autoExpand(this); handleNoteInput(event)"
+            onfocus="handleNoteFocus(event)"
+            onblur="handleUpdate(${note.id}, this.value)">${note.text}</textarea>
+    <div class="actions">
+        <button class="btn-action" title="Copy" onclick="copyToClipboard(this.parentElement.previousElementSibling.value)">📋</button>
+        <button class="btn-action" title="Delete" style="color:var(--danger)" onclick="deleteNote(${note.id})">✕</button>
+    </div>
 </div>
                 `).join('');
 
@@ -2048,8 +2048,7 @@
         Date.prototype.startOfWeek = function () {
             const d = this.startOfDay();
             const day = d.getDay();
-            const diff = (day === 0 ? -6 : 1) - day; // Adjust to previous Monday
-            d.setDate(d.getDate() + diff);
+            d.setDate(d.getDate() - day);
             return d;
         };
 
