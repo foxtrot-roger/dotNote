@@ -732,9 +732,9 @@
 
         <div class="input-wrapper">
             <div class="input-group">
-                <button class="btn-util" style="height: 42px; width: 42px;" onclick="triggerCommand()">..</button>
+                <button class="btn-util" tabindex="-1" style="height: 42px; width: 42px;" onclick="triggerCommand()">..</button>
                 <input type="text" id="masterInput" placeholder="Find or create note..." autofocus="" autocomplete="off">
-                <button class="btn-util" style="height: 42px; width: 42px;" onclick="addNote(masterInput.value)">+</button>
+                <button class="btn-util" tabindex="-1" style="height: 42px; width: 42px;" onclick="addNote(masterInput.value)">+</button>
             </div>
         </div>
     </div>
@@ -872,8 +872,8 @@
             onfocus="handleNoteFocus(event)"
             onblur="handleUpdate(${note.id}, this.value)">${note.text}</textarea>
     <div class="actions">
-        <button class="btn-action" title="Copy" onclick="copyToClipboard(this.parentElement.previousElementSibling.value)">📋</button>
-        <button class="btn-action" title="Delete" style="color:var(--danger)" onclick="deleteNote(${note.id})">✕</button>
+        <button class="btn-action" tabindex="-1" title="Copy" onclick="copyToClipboard(this.parentElement.previousElementSibling.value)">📋</button>
+        <button class="btn-action" tabindex="-1" title="Delete" style="color:var(--danger)" onclick="deleteNote(${note.id})">✕</button>
     </div>
 </div>
                 `).join('');
