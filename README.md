@@ -223,7 +223,7 @@ Create a free JSONBin account
 - `https://api.jsonbin.io/v3/b/<YOUR_BIN_ID>`:
 - [JSONBin](https://jsonbin.io) → `BINS` → `Create a Bin`
 	- `⚙️` → change the name to `dotNote`
-	- In the JSON section, write `[{}]`
+	- In the JSON section, write `[ { "id":0, "version":0 } ]`
 	- Click `Save Bin`
 	- In the bins, click the bin you just created and copy it's ID
 - In dotNote, replace `<YOUR_BIN_ID>` with the ID you copied
