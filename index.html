@@ -732,7 +732,14 @@
 
         <div class="toolbar">
             <button class="btn-util" onclick="toggleMenu()">☰ Menu</button>
-            <div style="flex-grow: 1;"></div>
+            
+            <div style="flex-grow: 1; display:flex; justify-content:center">
+                <div class="sync-sync" style="width:100px;">
+                    <button class="sync-btn put" onclick="syncToCloud()" title="Push to Cloud">
+                        <span>⇵</span> Sync
+                    </button>
+                </div>
+            </div>
             <button class="btn-util" style="width:24px; height:24px; padding:0; border-radius:50%" onclick="toggleShortcuts()">?</button>
         </div>
 
