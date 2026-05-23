@@ -915,9 +915,24 @@
             else
                 filteredNotes = notes.filter(note => note.text && !note.text.startsWith(".."));
 
-            const words = query.split(/\s+/).map(escapeRegExp);
-            const regex = new RegExp(words.join('.*'), 'is');
-            filteredNotes = filteredNotes.filter(note => regex.test(note.text));
+            // extracts each word or "text between quotes" as search tokens
+            const tokens = (query.match(/"[^"]*(?:\\.[^"]*)*"?|\S+/g) || [])
+                .map(token => {
+                    let clean = token.toLowerCase();
+                    if (clean.startsWith('"')) {
+                        clean = clean.slice(1);
+                    }
+                    if (clean.endsWith('"')) {
+                        clean = clean.slice(0, -1);
+                    }
+                    return clean;
+                })
+                .filter(token => token.length > 0);
+
+            filteredNotes = filteredNotes.filter(note => {
+                const noteTextLower = note.text.toLowerCase();
+                return tokens.every(token => noteTextLower.includes(token));
+            });
         }
         function escapeRegExp(string) {
             return string.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
@@ -931,12 +946,12 @@
                 .map(note => `
 <div class="note-item" data-id="${note.id}">
     <textarea
-            class="note-content"
-            spellcheck="false"
-            onkeydown="handleNoteKeydown(event)"
-            oninput="autoExpand(this); handleNoteInput(event); handleUpdate(${note.id}, this.value)"
-            onfocus="handleNoteFocus(event)"
-            onblur="handleUpdate(${note.id}, this.value)">${note.text}</textarea>
+        class="note-content"
+        spellcheck="false"
+        onkeydown="handleNoteKeydown(event)"
+        oninput="autoExpand(this); handleNoteInput(event); handleUpdate(${note.id}, this.value)"
+        onfocus="handleNoteFocus(event)"
+        onblur="handleUpdate(${note.id}, this.value)">${note.text}</textarea>
     <div class="actions">
         <button class="btn-action" tabindex="-1" title="Copy" onclick="copyToClipboard(this.parentElement.previousElementSibling.value)">📋</button>
         <button class="btn-action" tabindex="-1" title="Delete" style="color:var(--danger)" onclick="deleteNote(${note.id})">✕</button>
@@ -2013,9 +2028,9 @@
 
         function renderPopup(target) {
             popup.innerHTML = currentMatches.map((m, i) =>
-                `<div class="suggestion-item ${i === selectedIndex ? 'active' : ''}" onclick="applySuggestion('${m.code}', '${m.value}')">
-                                                                    <strong>${m.code}</strong><br><small>${m.value.substring(0, 20)}</small>
-                                                                </div>`
+`<div class="suggestion-item ${i === selectedIndex ? 'active' : ''}" onclick="applySuggestion('${m.code}', '${m.value}')">
+    <strong>${m.code}</strong><br><small>${m.value.substring(0, 20)}</small>
+</div>`
             ).join('');
 
             popup.style.display = 'block';
