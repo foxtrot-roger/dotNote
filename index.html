@@ -943,7 +943,16 @@
         }
         function redrawNotes(shouldScroll = false) {
             notesList.innerHTML = filteredNotes
-                .map(note => `
+                .map(drawNote)
+                .join('');
+
+            document.querySelectorAll('.note-content').forEach(el => autoExpand(el));
+            if (shouldScroll || masterInput.value === "") {
+                notesList.scrollTop = notesList.scrollHeight;
+            }
+        }
+        function drawNote(note) {
+            return `
 <div class="note-item" data-id="${note.id}">
     <textarea
         class="note-content"
@@ -956,13 +965,7 @@
         <button class="btn-action" tabindex="-1" title="Copy" onclick="copyToClipboard(this.parentElement.previousElementSibling.value)">📋</button>
         <button class="btn-action" tabindex="-1" title="Delete" style="color:var(--danger)" onclick="deleteNote(${note.id})">✕</button>
     </div>
-</div>
-                `).join('');
-
-            document.querySelectorAll('.note-content').forEach(el => autoExpand(el));
-            if (shouldScroll || masterInput.value === "") {
-                notesList.scrollTop = notesList.scrollHeight;
-            }
+</div>`;
         }
 
         function autoExpand(el) {
@@ -1621,6 +1624,9 @@
             const now = new Date();
             const result = [];
 
+            splitAndCopyHeader.forEach(x => addActionSuggestion(result, search, x, "🗐 Split note with header"));
+            splitWithoutHeader.forEach(x => addActionSuggestion(result, search, x, "✂ Split note"));
+
             addSuggestion(result, search, "..today", now.formatYMD());
             addSuggestion(result, search, "..yesterday", now.addDays(-1).formatYMD());
             addSuggestion(result, search, "..tomorrow", now.addDays(1).formatYMD());
@@ -1647,6 +1653,14 @@
             });
 
             return result;
+        }
+
+        function addActionSuggestion(result, search, baseKeyword, replacement) {
+            if (!baseKeyword.toLowerCase().startsWith(search.toLowerCase())) {
+                return;
+            }
+
+            result.push({ keyword: baseKeyword, replacement: replacement });
         }
         function addSuggestion(result, search, baseKeyword, replacement) {
             if (!baseKeyword.toLowerCase().startsWith(search.toLowerCase())) {
@@ -2029,7 +2043,7 @@
         function renderPopup(target) {
             popup.innerHTML = currentMatches.map((m, i) =>
 `<div class="suggestion-item ${i === selectedIndex ? 'active' : ''}" onclick="applySuggestion('${m.code}', '${m.value}')">
-    <strong>${m.code}</strong><br><small>${m.value.substring(0, 20)}</small>
+    <strong>${m.code}</strong><br><small>${m.value.substring(0, 40)}</small>
 </div>`
             ).join('');
 
@@ -2108,10 +2122,15 @@
             return { left: spanLeft, top: spanTop };
         }
 
-        function applySuggestion(code, value) {
+        const splitAndCopyHeader = ["..split", "..nextPage", "..splitHeader"]
+        const splitWithoutHeader = ["..cut", "..splitNew", "..splitCut"]
+        const allNoteActionKeywords = [...splitAndCopyHeader, ...splitWithoutHeader];
+        async function applySuggestion(code, value) {
             if (!activeTarget) return;
 
             activeTarget.focus();
+
+            const noteItem = activeTarget.closest('.note-item');
 
             // Works for both masterInput and note-item inputs now!
             const val = activeTarget.value;
@@ -2120,19 +2139,67 @@
             const lastWord = words[words.length - 1];
 
             const startOffset = pos - lastWord.length;
-            const newVal = val.substring(0, startOffset) + value + val.substring(pos);
 
-            activeTarget.value = newVal;
+            if (allNoteActionKeywords.includes(code)) {
+                if (splitAndCopyHeader.includes(code)) {
+                    const eol = val.indexOf("\n");
+                    let firstLine = "";
+                    if (eol) {
+                        firstLine = val.substring(0, eol);
+                    }
+
+                    const before = val.substring(0, startOffset);
+                    const after = val.substring(pos)
+
+                    activeTarget.value = before;
+                    const nextNote = {
+                        id: Date.now(),
+                        text: `${firstLine}\n${after.trim()}`,
+                        version: Date.now()
+                    };
+                    await dbAddNote(nextNote);
+
+                    noteItem.insertAdjacentHTML('afterend', drawNote(nextNote));
+                    const newNoteWrapper = noteItem.nextElementSibling;
+                    const textareaEl = newNoteWrapper.querySelector('textarea');
+                    if (textareaEl) {
+                        autoExpand(textareaEl);
+                    }
+                }
+                else if (splitWithoutHeader.includes(code)) {
+                    const before = val.substring(0, startOffset);
+                    const after = val.substring(pos)
+
+                    activeTarget.value = before;
+                    const nextNote = {
+                        id: Date.now(),
+                        text: after,
+                        version: Date.now()
+                    };
+                    await dbAddNote(nextNote);
+
+                    noteItem.insertAdjacentHTML('afterend', drawNote(nextNote));
+                    const newNoteWrapper = noteItem.nextElementSibling;
+                    const textareaEl = newNoteWrapper.querySelector('textarea');
+                    if (textareaEl) {
+                        autoExpand(textareaEl);
+                    }
+                }
+            }
+            else {
+                const newVal = val.substring(0, startOffset) + value + val.substring(pos);
+
+                activeTarget.value = newVal;
+            }
 
             // Set caret position to the end of the inserted text
             const newPos = startOffset + value.length;
             activeTarget.setSelectionRange(newPos, newPos);
 
             // Save to DB if it's a note
-            const noteItem = activeTarget.closest('.note-item');
             if (noteItem) {
                 const noteId = parseInt(noteItem.dataset.id);
-                handleUpdate(noteId, activeTarget.value);
+                await handleUpdate(noteId, activeTarget.value);
             }
 
             const snapshotActiveTarget = activeTarget;
