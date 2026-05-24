@@ -2041,11 +2041,23 @@
         }
 
         function renderPopup(target) {
-            popup.innerHTML = currentMatches.map((m, i) =>
-`<div class="suggestion-item ${i === selectedIndex ? 'active' : ''}" onclick="applySuggestion('${m.code}', '${m.value}')">
-    <strong>${m.code}</strong><br><small>${m.value.substring(0, 40)}</small>
-</div>`
-            ).join('');
+            popup.innerHTML = currentMatches.map((m, i) => `
+<div class="suggestion-item ${i === selectedIndex ? 'active' : ''}" 
+        data-code="${encodeURIComponent(m.code)}" 
+        data-value="${encodeURIComponent(m.value)}">
+    <strong>${m.code}</strong><br>
+    <small>${m.value.substring(0, 40)}</small>
+</div>`).join('');
+
+            popup.onclick = (e) => {
+                const item = e.target.closest('.suggestion-item');
+                if (item) {
+                    const code = decodeURIComponent(item.dataset.code);
+                    const value = decodeURIComponent(item.dataset.value);
+
+                    applySuggestion(code, value);
+                }
+            };
 
             popup.style.display = 'block';
 
