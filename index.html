@@ -2134,8 +2134,8 @@
             return { left: spanLeft, top: spanTop };
         }
 
-        const splitAndCopyHeader = ["..split", "..nextPage", "..splitHeader"]
-        const splitWithoutHeader = ["..cut", "..splitNew", "..splitCut"]
+        const splitAndCopyHeader = ["..split", "..cut"]
+        const splitWithoutHeader = ["..splitOld"]
         const allNoteActionKeywords = [...splitAndCopyHeader, ...splitWithoutHeader];
         async function applySuggestion(code, value) {
             if (!activeTarget) return;
@@ -2176,6 +2176,9 @@
                     const textareaEl = newNoteWrapper.querySelector('textarea');
                     if (textareaEl) {
                         autoExpand(textareaEl);
+                        autoExpand(activeTarget);
+                        textareaEl.setSelectionRange(0, firstLine.length);
+                        textareaEl.focus();
                     }
                 }
                 else if (splitWithoutHeader.includes(code)) {
@@ -2195,6 +2198,9 @@
                     const textareaEl = newNoteWrapper.querySelector('textarea');
                     if (textareaEl) {
                         autoExpand(textareaEl);
+                        autoExpand(activeTarget);
+                        textareaEl.setSelectionRange(0, 0);
+                        textareaEl.focus();
                     }
                 }
             }
