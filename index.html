@@ -733,7 +733,7 @@
 
         <div class="toolbar">
             <button class="btn-util" onclick="toggleMenu()">☰ Menu</button>
-            
+
             <div style="flex-grow: 1; display:flex; justify-content:center">
                 <div class="sync-sync" style="width:100px;">
                     <button class="sync-btn put" onclick="syncToCloud()" title="Push to Cloud">
@@ -954,17 +954,17 @@
         function drawNote(note) {
             return `
 <div class="note-item" data-id="${note.id}">
-    <textarea
-        class="note-content"
-        spellcheck="false"
-        onkeydown="handleNoteKeydown(event)"
-        oninput="autoExpand(this); handleNoteInput(event); handleUpdate(${note.id}, this.value)"
-        onfocus="handleNoteFocus(event)"
-        onblur="handleUpdate(${note.id}, this.value)">${note.text}</textarea>
-    <div class="actions">
-        <button class="btn-action" tabindex="-1" title="Copy" onclick="copyToClipboard(this.parentElement.previousElementSibling.value)">📋</button>
-        <button class="btn-action" tabindex="-1" title="Delete" style="color:var(--danger)" onclick="deleteNote(${note.id})">✕</button>
-    </div>
+        <textarea
+            class="note-content"
+            spellcheck="false"
+            onkeydown="handleNoteKeydown(event)"
+            oninput="autoExpand(this); handleNoteInput(event); handleUpdate(${note.id}, this.value)"
+            onfocus="handleNoteFocus(event)"
+            onblur="handleUpdate(${note.id}, this.value)">${note.text}</textarea>
+        <div class="actions">
+            <button class="btn-action" tabindex="-1" title="Copy" onclick="copyToClipboard(this.parentElement.previousElementSibling.value)">📋</button>
+            <button class="btn-action" tabindex="-1" title="Delete" style="color:var(--danger)" onclick="deleteNote(${note.id})">✕</button>
+        </div>
 </div>`;
         }
 
@@ -1106,8 +1106,14 @@
             syncPath.value = localStorage.getItem('dotNotes-syncPath') || '';
         });
 
-        async function syncToCloud() {
+        async function syncToCloud() { await syncX(true, true); }
+        async function getFromUrl() { await syncX(false, true); }
+        async function pushToCloud() { await syncX(true, false); }
+
+        async function syncX(loadLocal, loadRemote) {
             try {
+                var remoteNotes = [];
+
                 const url = syncUrl.value;
                 const path = syncPath.value;
                 const verb = syncVerb.value;
@@ -1115,16 +1121,18 @@
                 if (!url) return alert("Please enter an endpoint URL.");
                 saveSyncSettings();
 
-                var response = await fetch(url, {
-                    method: 'GET',
-                    headers: parseHeaders()
-                });
+                if (loadRemote) {
+                    var response = await fetch(url, {
+                        method: 'GET',
+                        headers: parseHeaders()
+                    });
 
-                if (!response.ok)
-                    throw new Error(`HTTP GET returned ${response.status}: ${await response.text()}`);
+                    if (!response.ok)
+                        throw new Error(`HTTP GET returned ${response.status}: ${await response.text()}`);
 
-                const fullResponseJson = await response.json();
-                const remoteNotes = resolvePath(fullResponseJson, path);
+                    const fullResponseJson = await response.json();
+                    remoteNotes = resolvePath(fullResponseJson, path);
+                }
 
                 if (!Array.isArray(remoteNotes)) {
                     const rawString = JSON.stringify(fullResponseJson, null, 2) || String(remoteNotes);
@@ -1140,7 +1148,7 @@
                 else {
                     const mergedNotes = remoteNotes;
 
-                    var localNotes = await getAllNotesRaw();
+                    var localNotes = loadLocal ? await getAllNotesRaw() : [];
                     const localMap = new Map(localNotes.map(note => [note.id, note]));
                     const syncNow = Date.now();
                     let requiresPush = false;
@@ -1249,71 +1257,6 @@
 
             } catch (err) {
                 alert("Pull failed: " + err.message);
-            }
-        }
-
-        async function getFromUrl() {
-            try {
-                const url = syncUrl.value;
-                const path = syncPath.value;
-
-                if (!url) return alert("Please enter an endpoint URL.");
-                saveSyncSettings();
-
-                const response = await fetch(url, {
-                    method: 'GET',
-                    headers: parseHeaders()
-                });
-
-                if (!response.ok) throw new Error(`Server error: ${response.status}`);
-
-                const fullResponseJson = await response.json();
-
-                const importedData = resolvePath(fullResponseJson, path);
-
-                if (Array.isArray(importedData)) {
-                    if (confirm(`Found ${importedData.length} notes. Replace local data?`)) {
-                        await dbClearAll();
-                        for (const note of importedData) {
-                            if (note.text || note.content) {
-                                await dbAddNote(note);
-                            }
-                        }
-                        render(true);
-                    }
-                } else {
-                    console.error("Data at path is not an array:", importedData);
-                    alert(`Error: The data at path "${path || 'root'}" is not a list/array.`);
-                }
-
-            } catch (err) {
-                alert("Pull failed: " + err.message);
-            }
-        }
-        async function pushToCloud() {
-            try {
-                const url = syncUrl.value;
-                const verb = syncVerb.value;
-
-                if (!url) return alert("Error: No Endpoint URL provided in Config.");
-
-                saveSyncSettings();
-
-                const notes = await getAllNotes();
-                if (!confirm(`Currently ${notes.length} notes. push them to remote?`))
-                    return;
-
-                const response = await fetch(url, {
-                    method: verb,
-                    headers: parseHeaders(),
-                    body: JSON.stringify(notes)
-                });
-
-                if (!response.ok)
-                    throw new Error(`Server returned ${response.status}: ${await response.text()}`);
-                alert("Sync Successful: " + new Date().toLocaleTimeString());
-            } catch (err) {
-                alert("Sync Failed: " + err.message);
             }
         }
 
@@ -2042,11 +1985,11 @@
 
         function renderPopup(target) {
             popup.innerHTML = currentMatches.map((m, i) => `
-<div class="suggestion-item ${i === selectedIndex ? 'active' : ''}" 
-        data-code="${encodeURIComponent(m.code)}" 
-        data-value="${encodeURIComponent(m.value)}">
-    <strong>${m.code}</strong><br>
-    <small>${m.value.substring(0, 40)}</small>
+<div class="suggestion-item ${i === selectedIndex ? 'active' : ''}"
+            data-code="${encodeURIComponent(m.code)}"
+            data-value="${encodeURIComponent(m.value)}">
+        <strong>${m.code}</strong><br>
+        <small>${m.value.substring(0, 40)}</small>
 </div>`).join('');
 
             popup.onclick = (e) => {
